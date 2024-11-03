@@ -45,7 +45,10 @@
 
 <script setup>
 import {ref} from 'vue'
-import {NCard, NSpace, NButton, NForm, NFormItem, NSelect, NInput, NInputNumber, NDivider} from 'naive-ui'
+import {useNotification, NSpace, NButton, NForm, NFormItem, NSelect, NInput, NInputNumber, NDivider} from 'naive-ui'
+import {showInfo} from "../utils/notification.js"
+
+const notification = useNotification()
 
 const currentVersion = ref('1.0.0')
 const latestVersion = ref('1.1.0')
@@ -63,7 +66,7 @@ const logLevelOptions = [
 ]
 
 function updateSoftware() {
-  alert('正在更新软件...')
+  showInfo(notification, "good")
 }
 
 function exitProgram() {

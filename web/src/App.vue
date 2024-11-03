@@ -1,21 +1,26 @@
 <template>
   <n-layout has-sider style="height: 100vh;">
 
-    <n-config-provider :theme="darkTheme">
-      <n-layout-sider width="200" class="side">
-        <n-scrollbar>
-          <n-menu :options="menuOptions" @update:value="handleMenuChange"/>
-        </n-scrollbar>
-      </n-layout-sider>
-    </n-config-provider>
+    <n-notification-provider>
+      <n-config-provider :theme="darkTheme">
+        <n-layout-sider width="200" class="side">
+          <n-scrollbar>
+            <n-menu :options="menuOptions" @update:value="handleMenuChange"/>
+          </n-scrollbar>
+        </n-layout-sider>
+      </n-config-provider>
+    </n-notification-provider>
 
-    <n-config-provider :locale="zhCN" style="width: 100%">
-      <n-layout-content class="content">
-        <n-scrollbar trigger="hover">
-          <router-view/>
-        </n-scrollbar>
-      </n-layout-content>
-    </n-config-provider>
+    <n-notification-provider>
+      <n-config-provider :locale="zhCN" style="width: 100%">
+        <n-layout-content class="content">
+          <n-scrollbar trigger="hover">
+            <router-view/>
+          </n-scrollbar>
+        </n-layout-content>
+      </n-config-provider>
+    </n-notification-provider>
+
   </n-layout>
 
 </template>
