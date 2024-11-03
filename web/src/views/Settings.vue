@@ -47,6 +47,7 @@
 import {ref} from 'vue'
 import {useNotification, NSpace, NButton, NForm, NFormItem, NSelect, NInput, NInputNumber, NDivider} from 'naive-ui'
 import {showInfo} from "../utils/notification.js"
+import {showLoading, hideLoading} from "../utils/loading.js";
 
 const notification = useNotification()
 
@@ -67,6 +68,12 @@ const logLevelOptions = [
 
 function updateSoftware() {
   showInfo(notification, "good")
+
+//   // 显示加载遮罩
+//   showLoading();
+//
+// // 模拟加载过程，3秒后移除加载遮罩
+//   setTimeout(hideLoading, 3000);
 }
 
 function exitProgram() {

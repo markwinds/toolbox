@@ -23,17 +23,15 @@ function showMsg(notification, msg, type, title) {
     }
     pushMsg(msg);
 
-    // Delay to ensure the notification is displayed on top
-    setTimeout(() => {
-        notification[type]({
-            title: title,
-            content: msg,
-            duration: 4500,
-            onAfterLeave: () => {
-                rmMsg(msg) // Ensure only one identical message is displayed at a time
-            }
-        });
-    }, 10);
+    notification[type]({
+        title: title,
+        content: msg,
+        duration: 4500,
+        onAfterLeave: () => {
+            rmMsg(msg) // Ensure only one identical message is displayed at a time
+        }
+    })
+
 }
 
 // Show an info notification
