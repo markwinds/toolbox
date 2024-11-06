@@ -31,7 +31,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
     // 为程序添加托盘图标
     get_tray_instance().add_tray(hInstance, L"toolbox");
     get_tray_instance().reg_menu(L"good", []() { logI("good"); });
-    get_tray_instance().reg_menu(L"ok", []() { logI("ok"); });
+    get_tray_instance().reg_menu(L"退出", []() {
+        logW("tray exit program");
+        exit(0);
+    });
 
     do_main();
 

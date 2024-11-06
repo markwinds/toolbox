@@ -83,19 +83,7 @@ int Tray::add_tray(HINSTANCE const &hInstance, const std::wstring &title) {
         nid.uCallbackMessage = WM_APP; // 自定义消息
         nid.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 
-        if (!nid.hIcon) {
-            DWORD dwError = GetLastError();
-            logI("Error loading icon, error code: %lu", dwError);
-        }
-
-
-        size_t len = wcstombs(nullptr, title.c_str(), 0);  // 计算需要的长度
-        if (len != (size_t) -1) {
-            wcstombs(nid.szTip, title.c_str(), sizeof(nid.szTip) - 1);  // 复制到szTip，确保不会溢出
-            nid.szTip[sizeof(nid.szTip) - 1] = '\0'; // 确保字符串以 '\0' 结尾
-        } else {
-            logE("wcstombs error");
-        }
+        wcstombs_s(nullptr, nid.szTip, title.c_str(), sizeof(nid.szTip) - 1); // 复制到szTip，确保不会溢出
 
         Shell_NotifyIcon(NIM_ADD, &nid);
 
