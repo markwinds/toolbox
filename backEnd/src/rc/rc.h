@@ -4,4 +4,5 @@
 
 #pragma once
 
-void load_rc();
+#define IDI_ICON1 101
+

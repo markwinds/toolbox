@@ -8,13 +8,18 @@ include_directories(third/httpLib)
 
 # ----------------------头文件 业务-------------------------
 include_directories(src/rc)
+include_directories(src/tray)
+include_directories(src/template)
+include_directories(src/log)
 
 # ------------------------源代码------------------------
 if (WIN32)
     set(SRC_LIST src/rc/resource.rc)
 endif ()
 aux_source_directory(src SRC_LIST)
-aux_source_directory(src/rc SRC_LIST)
+aux_source_directory(src/tray SRC_LIST)
+aux_source_directory(src/template SRC_LIST)
+aux_source_directory(src/log SRC_LIST)
 
 # ------------------------生成程序------------------------
 if (WIN32)

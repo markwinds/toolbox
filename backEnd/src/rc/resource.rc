@@ -1,1 +1,4 @@
-IDI_ICON1 ICON "favicon.ico"
+
+#include "rc.h"
+
+IDI_ICON1 ICON "../../../web/public/favicon.ico"
