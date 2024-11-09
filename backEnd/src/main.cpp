@@ -1,6 +1,7 @@
 
-#include "httplib.h"
 #include "log.h"
+#include "httpServer.h"
+#include "httplib.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -10,16 +11,13 @@
 #endif
 
 void do_main() {
-
-    // HTTP
-    httplib::Server svr;
-
-    svr.Get("/hi",
-            [](const httplib::Request &, httplib::Response &res) { res.set_content("Hello World!", "text/plain"); });
-
     logW("=================program start==================");
 
-    svr.listen("0.0.0.0", 8080);
+    // web静态文件处理
+    reg_static_file_handler();
+    logD("reg_static_file_handler success");
+
+    svr.listen("0.0.0.0", 80);
 }
 
 

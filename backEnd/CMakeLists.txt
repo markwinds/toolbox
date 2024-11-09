@@ -3,14 +3,22 @@ project(toolbox)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
+
+
 # -----------------------头文件 三方库-----------------------
 include_directories(third/httpLib)
+include_directories(third/zlib)
+include_directories(third/libzip)
 
 # ----------------------头文件 业务-------------------------
 include_directories(src/rc)
 include_directories(src/tray)
 include_directories(src/template)
 include_directories(src/log)
+include_directories(src/staticFile)
+include_directories(src/httpServer)
 
 # ------------------------源代码------------------------
 if (WIN32)
@@ -20,6 +28,8 @@ aux_source_directory(src SRC_LIST)
 aux_source_directory(src/tray SRC_LIST)
 aux_source_directory(src/template SRC_LIST)
 aux_source_directory(src/log SRC_LIST)
+aux_source_directory(src/staticFile SRC_LIST)
+aux_source_directory(src/httpServer SRC_LIST)
 
 # ------------------------生成程序------------------------
 if (WIN32)
@@ -27,3 +37,9 @@ if (WIN32)
 else ()
     add_executable(toolbox ${SRC_LIST})
 endif ()
+
+# ------------------------链接库------------------------
+target_link_libraries(toolbox
+        ${CMAKE_SOURCE_DIR}/third/zlib/zlibstatic.lib
+        ${CMAKE_SOURCE_DIR}/third/libzip/zip.lib)
+

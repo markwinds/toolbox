@@ -1,0 +1,8 @@
+编译zlib
+cmake .. -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install
+ninja
+ninja install
+
+
+编译libzip
+cmake .. -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=OFF -DZLIB_INCLUDE_DIR=C:\Users\14640\Desktop\zlib131\zlib-1.3.1\build\install\include -DZLIB_LIBRARY=C:\Users\14640\Desktop\zlib131\zlib-1.3.1\build\install\lib\zlibstatic.lib -DCMAKE_INSTALL_PREFIX=install

@@ -30,12 +30,14 @@ void log(const LogLevel &level, const char *file, const char *func, int line, co
 
     // 获取当前时间
     time_t now = time(nullptr);
-    struct tm *tm = localtime(&now);
+    std::tm tm_info;
+    //    tm_info = *std::localtime(&now);
+    localtime_s(&tm_info, &now);
 
     // 格式化输出
     write_len += snprintf(tmp + write_len, sizeof(tmp) - write_len, "[%c][%04d-%02d-%02d %02d:%02d:%02d][%s:%s:%d] ",
-                          log_level_str[level], tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
-                          tm->tm_hour, tm->tm_min, tm->tm_sec,
+                          log_level_str[level], tm_info.tm_year + 1900, tm_info.tm_mon + 1, tm_info.tm_mday,
+                          tm_info.tm_hour, tm_info.tm_min, tm_info.tm_sec,
                           file_name.c_str(), func, line);
 
     write_len += vsnprintf(tmp + write_len, sizeof(tmp) - write_len, format, args);
