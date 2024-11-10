@@ -16,31 +16,6 @@ using namespace std;
 
 httplib::Server svr;
 
-map<string, string> file_content_type_map = {
-        {".html", "text/html"},
-        {".css", "text/css"},
-        {".js", "application/javascript"},
-        {".png", "image/png"},
-        {".jpg", "image/jpeg"},
-        {".jpeg", "image/jpeg"},
-        {".gif", "image/gif"},
-        {".ico", "image/x-icon"},
-};
-
-void get_file_type_by_path(const string &path, string &content_type) {
-
-    // 获取文件后缀名
-    string suffix = path.substr(path.find_last_of('.'));
-
-    // 根据后缀名获取文件类型
-    if (file_content_type_map.find(suffix) != file_content_type_map.end()) {
-        content_type = file_content_type_map[suffix];
-    } else {
-        content_type = "text/plain";
-    }
-
-}
-
 int reg_static_file_handler() {
     string url = "/" + string(STATIC_FILE_PATH) + "/(.*)";
 
@@ -54,9 +29,7 @@ int reg_static_file_handler() {
 
         logD("get static file: %s", path.c_str());
 
-        get_file_type_by_path(path, content_type);
-
-        if (0 != static_file_get_file(path, data)) {
+        if (0 != static_file_get_file(path, data, content_type)) {
             logE("not find file: %s", path.c_str());
             res.status = 404;
             return;
@@ -72,9 +45,7 @@ int reg_static_file_handler() {
 
         logD("get static file: %s", path.c_str());
 
-        get_file_type_by_path(path, content_type);
-
-        if (0 != static_file_get_file(path, data)) {
+        if (0 != static_file_get_file(path, data, content_type)) {
             logE("not find file: %s", path.c_str());
             res.status = 404;
             return;

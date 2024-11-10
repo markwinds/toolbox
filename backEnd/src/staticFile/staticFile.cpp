@@ -20,9 +20,35 @@ using namespace std;
 struct FileInfo {
     string path;
     vector<char> data;
+    string mime_type; // 静态文件类型
 };
 
 map<string, FileInfo> file_map;
+
+map<string, string> file_mine_type_map = {
+        {".html", "text/html"},
+        {".css",  "text/css"},
+        {".js",   "application/javascript"},
+        {".png",  "image/png"},
+        {".jpg",  "image/jpeg"},
+        {".jpeg", "image/jpeg"},
+        {".gif",  "image/gif"},
+        {".ico",  "image/x-icon"},
+};
+
+void get_mime_type_by_path(const string &path, string &mime_type) {
+
+    // 获取文件后缀名
+    string suffix = path.substr(path.find_last_of('.'));
+
+    // 根据后缀名获取文件类型
+    if (file_mine_type_map.find(suffix) != file_mine_type_map.end()) {
+        mime_type = file_mine_type_map[suffix];
+    } else {
+        mime_type = "text/plain";
+    }
+
+}
 
 int add_static_file_to_map(const string &filepath, unsigned char *data, size_t size) {
     FileInfo fileInfo;
@@ -49,6 +75,7 @@ int add_static_file_to_map(const string &filepath, unsigned char *data, size_t s
 
     fileInfo.path = path;
     fileInfo.data.assign(data, data + size);
+    get_mime_type_by_path(path, fileInfo.mime_type);
     file_map[path] = fileInfo;
     logD("map file path: %s", path.c_str());
 
@@ -213,9 +240,9 @@ int init_static_file() {
     return 0;
 }
 
-int static_file_get_file(const std::string &path, std::vector<char> &data) {
+int static_file_get_file(const std::string &path, std::vector<char> &data, string &mime_type) {
     string tmpPath = path;
-    
+
     // 将路径中的反斜杠替换为斜杠
     for (auto &c: tmpPath) {
         if (c == '\\') {
@@ -238,5 +265,6 @@ int static_file_get_file(const std::string &path, std::vector<char> &data) {
         return -1;
     }
     data = it->second.data;
+    mime_type = it->second.mime_type;
     return 0;
 }

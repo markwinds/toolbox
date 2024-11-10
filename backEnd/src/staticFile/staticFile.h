@@ -9,4 +9,4 @@
 
 int init_static_file();
 
-int static_file_get_file(const std::string &path, std::vector<char> &data);
+int static_file_get_file(const std::string &path, std::vector<char> &data, std::string &mime_type);
