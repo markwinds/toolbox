@@ -2,6 +2,8 @@
 // Created by 14640 on 2024/11/4.
 //
 
+#pragma once
+
 #include <memory>
 #include <mutex>
 
@@ -9,7 +11,7 @@ template<typename T>
 class Singleton {
 public:
     // 获取单例实例
-    static T &getInstance() {
+    static T &get_instance() {
         std::call_once(initFlag, &Singleton::initInstance);
         return *instance;
     }

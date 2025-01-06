@@ -5,6 +5,7 @@
 #include "httpServer.h"
 #include "log.h"
 #include "staticFile.h"
+#include "json.hpp"
 #include <vector>
 #include <map>
 #include <string>
@@ -56,3 +57,9 @@ int reg_static_file_handler() {
     return 0;
 }
 
+json create_response(const std::string &code, const json &result) {
+    json response;
+    response["code"] = code;
+    response["result"] = result;
+    return response;
+}

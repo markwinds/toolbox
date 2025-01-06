@@ -27,5 +27,5 @@ private:
 };
 
 inline Tray &get_tray_instance() {
-    return Singleton<Tray>::getInstance();
+    return Singleton<Tray>::get_instance();
 }

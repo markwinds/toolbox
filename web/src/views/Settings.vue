@@ -44,13 +44,14 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
 import {useNotification, NSpace, NButton, NForm, NFormItem, NSelect, NInput, NInputNumber, NDivider} from 'naive-ui'
 import {showInfo} from "../utils/notification.js"
-import {showLoading, hideLoading} from "../utils/loading.js";
+import {reqSuccessCode, service} from "../utils/request.js";
 
 const notification = useNotification()
 
+const baseUrl = 'setting'
 const currentVersion = ref('1.0.0')
 const latestVersion = ref('1.1.0')
 const settings = ref({
@@ -66,14 +67,28 @@ const logLevelOptions = [
   {label: 'Error', value: 'error'},
 ]
 
+onMounted(() => {
+  getVersion()
+})
+
+async function getVersion() {
+  let res = await service({
+    url: baseUrl + '/version',
+  })
+  if (res.code !== reqSuccessCode) {
+    return
+  }
+  currentVersion.value = res.result.currentVersion
+}
+
 function updateSoftware() {
   showInfo(notification, "good")
 
-//   // 显示加载遮罩
-//   showLoading();
-//
-// // 模拟加载过程，3秒后移除加载遮罩
-//   setTimeout(hideLoading, 3000);
+  //   // 显示加载遮罩
+  //   showLoading();
+  //
+  // // 模拟加载过程，3秒后移除加载遮罩
+  //   setTimeout(hideLoading, 3000);
 }
 
 function exitProgram() {
@@ -94,7 +109,6 @@ function restoreDefaultsAndRestart() {
 </script>
 
 <style scoped>
-
 .frame {
   width: 500px;
   margin-left: 100px;
@@ -112,5 +126,4 @@ function restoreDefaultsAndRestart() {
   text-align: left;
   margin-left: 20px;
 }
-
 </style>
