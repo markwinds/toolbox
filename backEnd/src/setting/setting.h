@@ -8,11 +8,11 @@
 
 class Setting : public Singleton<Setting> {
 
-public:
+  public:
     int init();
 
     int reg_http_handler();
 
-private:
+  private:
     std::string get_compile_time();
 };

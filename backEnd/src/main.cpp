@@ -1,7 +1,7 @@
 
-#include "log.h"
 #include "httpServer.h"
 #include "httplib.h"
+#include "log.h"
 #include "setting.h"
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -11,8 +11,7 @@
 
 #endif
 
-void do_main()
-{
+void do_main() {
     logW("=================program start==================");
 
     // web静态文件处理
@@ -27,17 +26,15 @@ void do_main()
 #if defined(_WIN32) || defined(_WIN64)
 
 // Windows GUI程序入口
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
-{
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 
     // 为程序添加托盘图标
     get_tray_instance().add_tray(hInstance, L"toolbox");
-    get_tray_instance().reg_menu(L"good", []()
-                                 { logI("good"); });
-    get_tray_instance().reg_menu(L"退出", []()
-                                 {
+    get_tray_instance().reg_menu(L"good", []() { logI("good"); });
+    get_tray_instance().reg_menu(L"退出", []() {
         logW("tray exit program");
-        exit(0); });
+        exit(0);
+    });
 
     do_main();
 

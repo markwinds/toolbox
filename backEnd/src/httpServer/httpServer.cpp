@@ -3,12 +3,12 @@
 //
 
 #include "httpServer.h"
+#include "json.hpp"
 #include "log.h"
 #include "staticFile.h"
-#include "json.hpp"
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
 #define STATIC_FILE_PATH "web"
 
@@ -23,10 +23,10 @@ int reg_static_file_handler() {
     // 从程序中载入web静态文件
     init_static_file();
 
-    svr.Get(url, [](const httplib::Request &req, httplib::Response &res) {
+    svr.Get(url, [](const httplib::Request& req, httplib::Response& res) {
         vector<char> data;
-        string path = req.matches[1];
-        string content_type;
+        string       path = req.matches[1];
+        string       content_type;
 
         logD("get static file: %s", path.c_str());
 
@@ -39,10 +39,10 @@ int reg_static_file_handler() {
     });
 
     // /返回index.html
-    svr.Get("/", [](const httplib::Request &req, httplib::Response &res) {
+    svr.Get("/", [](const httplib::Request& req, httplib::Response& res) {
         vector<char> data;
-        string path = "index.html";
-        string content_type;
+        string       path = "index.html";
+        string       content_type;
 
         logD("get static file: %s", path.c_str());
 
@@ -57,9 +57,9 @@ int reg_static_file_handler() {
     return 0;
 }
 
-json create_response(const std::string &code, const json &result) {
+json create_response(const std::string& code, const json& result) {
     json response;
-    response["code"] = code;
+    response["code"]   = code;
     response["result"] = result;
     return response;
 }
