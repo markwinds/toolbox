@@ -121,7 +121,7 @@ if exist %LIB_PATH%\jsoncpp.lib (
     :: 拷贝生成的库和头文件
     :: 为jsoncpp的头文件单独创建一个文件夹 并拷贝头文件
     mkdir %INC_PATH%\jsoncpp
-    xcopy /E /Y install\include\json\* %INC_PATH%\jsoncpp\
+    xcopy /E /Y install\include\* %INC_PATH%\jsoncpp\
     copy /Y install\lib\jsoncpp.lib %LIB_PATH%\
     echo jsoncpp ok
     cd %WORK_PATH%
@@ -148,7 +148,7 @@ if exist %LIB_PATH%\drogon.lib (
         -DBUILD_DOC=OFF ^
         -DBUILD_ORM=OFF ^
         -DBUILD_YAML_CONFIG=OFF ^
-        -DBUILD_BROTLI=ON ^
+        -DBUILD_BROTLI=OFF ^
         -DJSONCPP_INCLUDE_DIRS=%INC_PATH%\jsoncpp ^
         -DJSONCPP_LIBRARIES=%LIB_PATH%\jsoncpp.lib ^
         -DZLIB_LIBRARY=%LIB_PATH%\zlibstatic.lib ^
