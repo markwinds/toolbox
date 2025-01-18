@@ -1,3 +1,3 @@
-[submodule "backEnd/third/zlib"]
-	path = backEnd/third/zlib
+[submodule "backEnd/third/src/zlib"]
+	path = backEnd/third/src/zlib
 	url = https://github.com/madler/zlib.git
