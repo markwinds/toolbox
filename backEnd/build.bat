@@ -12,7 +12,11 @@ set LIB_PATH=%WORK_PATH%\third\lib
 if not exist %INC_PATH% mkdir %INC_PATH%
 if not exist %LIB_PATH% mkdir %LIB_PATH%
 
-:: todo 如果发现没有git检出 则从github检出
+:: 如果子仓库没有检出 则检出子仓库
+if not exist %WORK_PATH%\third\src\drogon\.gitignore (
+    git submodule update --init --recursive
+)
+
 :: 编译依赖库
 call :build_zlib
 call :build_libzip
