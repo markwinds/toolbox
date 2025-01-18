@@ -1,3 +1,12 @@
 [submodule "backEnd/third/src/zlib"]
 	path = backEnd/third/src/zlib
 	url = https://github.com/madler/zlib.git
+[submodule "backEnd/third/src/libzip"]
+	path = backEnd/third/src/libzip
+	url = https://github.com/nih-at/libzip.git
+[submodule "backEnd/third/src/drogon"]
+	path = backEnd/third/src/drogon
+	url = https://github.com/drogonframework/drogon.git
+[submodule "backEnd/third/src/jsoncpp"]
+	path = backEnd/third/src/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp.git

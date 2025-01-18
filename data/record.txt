@@ -1,8 +1,35 @@
-编译zlib
-cmake .. -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install
-ninja
-ninja install
 
 
-编译libzip
-cmake .. -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DBUILD_SHARED_LIBS=OFF -DZLIB_INCLUDE_DIR=C:\Users\14640\Desktop\zlib131\zlib-1.3.1\build\install\include -DZLIB_LIBRARY=C:\Users\14640\Desktop\zlib131\zlib-1.3.1\build\install\lib\zlibstatic.lib -DCMAKE_INSTALL_PREFIX=install
+
+
+
+增加子仓库到当前git
+git submodule add https://github.com/madler/zlib.git zlib
+切换仓库版本
+git checkout v1.3.1
+或者
+git reset --hard <commit_id>
+
+
+修改子仓库路径
+git submodule deinit <path_to_submodule>
+git rm <path_to_submodule>
+
+
+git submodule add https://github.com/nih-at/libzip.git libzip
+git submodule add https://github.com/drogonframework/drogon.git drogon
+git submodule add https://github.com/open-source-parsers/jsoncpp.git jsoncpp
+git reset --hard 38dd5fea31a7a2727c0a6f6b6b04252374796cab
+git submodule update --init --recursive
+
+禁用http2
+git config --global http.version HTTP/1.1
+
+
+检出仓库和子仓库
+git clone --recurse-submodules
+
+
+
+git config --global http.proxy http://127.0.0.1:10809
+git config --global https.proxy http://127.0.0.1:10809
