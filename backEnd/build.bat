@@ -52,6 +52,9 @@ if exist %LIB_PATH%\zlibstatic.lib (
     xcopy /E /Y install\include\* %INC_PATH%\zlib\
     xcopy /E /Y install\lib\zlibstatic.lib %LIB_PATH%\
     echo zlib ok
+    :: 删除编译过程中生成的文件
+    cd ..
+    git checkout -- .
     cd %WORK_PATH%
 )
 goto :eof
@@ -83,6 +86,9 @@ if exist %LIB_PATH%\zip.lib (
     xcopy /E /Y install\include\* %INC_PATH%\libzip\
     copy /Y install\lib\zip.lib %LIB_PATH%\
     echo libzip ok
+    :: 删除编译过程中生成的文件
+    cd ..
+    git checkout -- .
     cd %WORK_PATH%
 )
 goto :eof
