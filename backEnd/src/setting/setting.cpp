@@ -12,18 +12,19 @@
 using namespace std;
 
 int Setting::init() {
-
     // 注册处理
     reg_http_handler();
-
     return 0;
 }
 
 int Setting::reg_http_handler() {
-
-    svr.Get(BASE_URL + "/version", [&](const httplib::Request& req, httplib::Response& res) {
-        OK_RESP(TOOLBOX_VERSION + " build_" + get_compile_time());
-    });
+    drogon::app().registerHandler(
+        BASE_URL + "/version",
+        [&](const drogon::HttpRequestPtr&                         req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
+            OK_RESP(TOOLBOX_VERSION + " build_" + get_compile_time());
+        },
+        {drogon::Get});
 
     return 0;
 }

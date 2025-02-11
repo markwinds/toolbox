@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 project(toolbox)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
@@ -16,9 +17,11 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -DNDEBUG")
 
 
 # -----------------------头文件 三方库-----------------------
+include_directories(third/inc)
 include_directories(third/inc/zlib)
 include_directories(third/inc/libzip)
 include_directories(third/inc/json)
+include_directories(third/inc/jsoncpp)
 include_directories(third/inc/drogon)
 
 # ----------------------头文件 业务-------------------------
@@ -55,5 +58,7 @@ target_link_libraries(toolbox
         ${CMAKE_SOURCE_DIR}/third/lib/jsoncpp.lib
         ${CMAKE_SOURCE_DIR}/third/lib/trantor.lib
         ${CMAKE_SOURCE_DIR}/third/lib/zlibstatic.lib
-        ${CMAKE_SOURCE_DIR}/third/lib/zip.lib)
+        ${CMAKE_SOURCE_DIR}/third/lib/zip.lib
+        ws2_32
+        rpcrt4)
 

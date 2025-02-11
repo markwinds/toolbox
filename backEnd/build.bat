@@ -34,7 +34,11 @@ cmake .. -G Ninja ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_INSTALL_PREFIX=install
 ninja
-ninja install
+echo build toolbox success
+:: 创建bin目录
+mkdir %WORK_PATH%\bin
+:: 拷贝生成的exe到bin目录
+cp %WORK_PATH%\build\toolbox.exe %WORK_PATH%\bin\
 
 :: 脚本结束
 echo Script finished

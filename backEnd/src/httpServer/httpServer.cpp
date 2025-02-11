@@ -6,53 +6,66 @@
 #include "json.hpp"
 #include "log.h"
 #include "staticFile.h"
-#include <map>
 #include <string>
-#include <vector>
 
 #define STATIC_FILE_PATH "web"
 
-using namespace httplib;
 using namespace std;
 
-httplib::Server svr;
-
 int reg_static_file_handler() {
-    string url = "/" + string(STATIC_FILE_PATH) + "/(.*)";
-
     // 从程序中载入web静态文件
     init_static_file();
 
-    svr.Get(url, [](const httplib::Request& req, httplib::Response& res) {
-        vector<char> data;
-        string       path = req.matches[1];
-        string       content_type;
+    // 注册静态文件处理
+    drogon::app().registerHandler("/" + string(STATIC_FILE_PATH) + "/{path}",
+                                  [](const drogon::HttpRequestPtr&                         req,
+                                     std::function<void(const drogon::HttpResponsePtr&)>&& callback,
+                                     const string&                                         path) {
+                                      vector<char> data;
+                                      string       content_type;
 
-        logD("get static file: %s", path.c_str());
+                                      logD("get static file: %s", path.c_str());
 
-        if (0 != static_file_get_file(path, data, content_type)) {
-            logE("not find file: %s", path.c_str());
-            res.status = 404;
-            return;
-        }
-        res.set_content(data.data(), data.size(), content_type);
-    });
+                                      if (0 != static_file_get_file(path, data, content_type)) {
+                                          logE("not find file: %s", path.c_str());
+                                          auto resp = drogon::HttpResponse::newHttpResponse();
+                                          resp->setStatusCode(drogon::k404NotFound);
+                                          callback(resp);
+                                          return;
+                                      }
 
-    // /返回index.html
-    svr.Get("/", [](const httplib::Request& req, httplib::Response& res) {
-        vector<char> data;
-        string       path = "index.html";
-        string       content_type;
+                                      auto resp = drogon::HttpResponse::newHttpResponse();
+                                      resp->setBody(string(data.begin(), data.end()));
+                                      resp->setContentTypeString(content_type);
+                                      callback(resp);
+                                  },
+                                  {drogon::Get});
 
-        logD("get static file: %s", path.c_str());
+    // 处理根路径
+    drogon::app().registerHandler(
+        "/",
+        [](const drogon::HttpRequestPtr&                         req,
+           std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
+            vector<char> data;
+            string       path = "index.html";
+            string       content_type;
 
-        if (0 != static_file_get_file(path, data, content_type)) {
-            logE("not find file: %s", path.c_str());
-            res.status = 404;
-            return;
-        }
-        res.set_content(data.data(), data.size(), content_type);
-    });
+            logD("get static file: %s", path.c_str());
+
+            if (0 != static_file_get_file(path, data, content_type)) {
+                logE("not find file: %s", path.c_str());
+                auto resp = drogon::HttpResponse::newHttpResponse();
+                resp->setStatusCode(drogon::k404NotFound);
+                callback(resp);
+                return;
+            }
+
+            auto resp = drogon::HttpResponse::newHttpResponse();
+            resp->setBody(string(data.begin(), data.end()));
+            resp->setContentTypeString(content_type);
+            callback(resp);
+        },
+        {drogon::Get});
 
     return 0;
 }
