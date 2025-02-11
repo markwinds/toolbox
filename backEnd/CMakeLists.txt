@@ -16,10 +16,10 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -DNDEBUG")
 
 
 # -----------------------头文件 三方库-----------------------
-include_directories(third/httpLib)
-include_directories(third/zlib)
-include_directories(third/libzip)
-include_directories(third/json)
+include_directories(third/inc/zlib)
+include_directories(third/inc/libzip)
+include_directories(third/inc/json)
+include_directories(third/inc/drogon)
 
 # ----------------------头文件 业务-------------------------
 include_directories(src/rc)
@@ -51,6 +51,9 @@ endif ()
 
 # ------------------------链接库------------------------
 target_link_libraries(toolbox
-        ${CMAKE_SOURCE_DIR}/third/zlib/zlibstatic.lib
-        ${CMAKE_SOURCE_DIR}/third/libzip/zip.lib)
+        ${CMAKE_SOURCE_DIR}/third/lib/drogon.lib
+        ${CMAKE_SOURCE_DIR}/third/lib/jsoncpp.lib
+        ${CMAKE_SOURCE_DIR}/third/lib/trantor.lib
+        ${CMAKE_SOURCE_DIR}/third/lib/zlibstatic.lib
+        ${CMAKE_SOURCE_DIR}/third/lib/zip.lib)
 

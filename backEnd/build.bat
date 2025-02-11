@@ -24,6 +24,18 @@ call :copy_json
 call :build_jsoncpp
 call :build_drogon
 
+:: 编译项目
+cd %WORK_PATH%
+mkdir build
+cd build
+cmake .. -G Ninja ^
+    -DCMAKE_C_COMPILER=clang ^
+    -DCMAKE_CXX_COMPILER=clang++ ^
+    -DCMAKE_BUILD_TYPE=Release ^
+    -DCMAKE_INSTALL_PREFIX=install
+ninja
+ninja install
+
 :: 脚本结束
 echo Script finished
 goto :eof
@@ -176,15 +188,6 @@ goto :eof
 
 
 
-
-
-
-
-
-
-
-
-::cmake -G "Ninja" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DDROGON_USE_BOOST=OFF -DDROGON_USE_ORM=OFF -DDROGON_USE_SQLITE=OFF -DDROGON_USE_POSTGRESQL=OFF -DDROGON_USE_MYSQL=OFF ..
 
 
 
