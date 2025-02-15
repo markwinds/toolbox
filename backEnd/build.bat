@@ -26,19 +26,28 @@ call :build_drogon
 
 :: 编译项目
 cd %WORK_PATH%
-mkdir build
+if not exist build mkdir build
 cd build
-cmake .. -G Ninja ^
-    -DCMAKE_C_COMPILER=clang ^
-    -DCMAKE_CXX_COMPILER=clang++ ^
-    -DCMAKE_BUILD_TYPE=Release ^
-    -DCMAKE_INSTALL_PREFIX=install
+:: 只在build目录不存在或CMake缓存不存在时运行CMake配置
+if not exist CMakeCache.txt (
+    cmake .. -G Ninja ^
+        -DCMAKE_C_COMPILER=clang ^
+        -DCMAKE_CXX_COMPILER=clang++ ^
+        -DCMAKE_BUILD_TYPE=Release ^
+        -DCMAKE_INSTALL_PREFIX=install
+)
 ninja
 echo build toolbox success
 :: 创建bin目录
-mkdir %WORK_PATH%\bin
+if not exist %WORK_PATH%\bin mkdir %WORK_PATH%\bin
 :: 拷贝生成的exe到bin目录
 cp %WORK_PATH%\build\toolbox.exe %WORK_PATH%\bin\
+:: 根据cp命令返回值输出
+if %errorlevel% equ 0 (
+    echo create %WORK_PATH%\bin\toolbox.exe success
+) else (
+    echo create %WORK_PATH%\bin\toolbox.exe failed
+)
 
 :: 脚本结束
 echo Script finished

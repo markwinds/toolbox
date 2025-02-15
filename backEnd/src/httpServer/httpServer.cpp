@@ -17,29 +17,32 @@ int reg_static_file_handler() {
     init_static_file();
 
     // 注册静态文件处理
-    drogon::app().registerHandler("/" + string(STATIC_FILE_PATH) + "/{path}",
-                                  [](const drogon::HttpRequestPtr&                         req,
-                                     std::function<void(const drogon::HttpResponsePtr&)>&& callback,
-                                     const string&                                         path) {
-                                      vector<char> data;
-                                      string       content_type;
+    drogon::app().registerHandlerViaRegex(
+        "/" STATIC_FILE_PATH "/.*",
+        [](const drogon::HttpRequestPtr&                         req,
+           std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
+            vector<char> data;
+            string       content_type;
 
-                                      logD("get static file: %s", path.c_str());
+            string path = req->getPath().substr(strlen(STATIC_FILE_PATH) + 2);
 
-                                      if (0 != static_file_get_file(path, data, content_type)) {
-                                          logE("not find file: %s", path.c_str());
-                                          auto resp = drogon::HttpResponse::newHttpResponse();
-                                          resp->setStatusCode(drogon::k404NotFound);
-                                          callback(resp);
-                                          return;
-                                      }
+            logD("get static file: %s", path.c_str());
+            logD("req->getPath(): %s", req->getPath().c_str());
 
-                                      auto resp = drogon::HttpResponse::newHttpResponse();
-                                      resp->setBody(string(data.begin(), data.end()));
-                                      resp->setContentTypeString(content_type);
-                                      callback(resp);
-                                  },
-                                  {drogon::Get});
+            if (0 != static_file_get_file(path, data, content_type)) {
+                logE("not find file: %s", path.c_str());
+                auto resp = drogon::HttpResponse::newHttpResponse();
+                resp->setStatusCode(drogon::k404NotFound);
+                callback(resp);
+                return;
+            }
+
+            auto resp = drogon::HttpResponse::newHttpResponse();
+            resp->setBody(string(data.begin(), data.end()));
+            resp->setContentTypeString(content_type);
+            callback(resp);
+        },
+        {drogon::Get});
 
     // 处理根路径
     drogon::app().registerHandler(
