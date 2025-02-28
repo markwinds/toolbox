@@ -40,6 +40,10 @@ ninja
 echo build toolbox success
 :: 创建bin目录
 if not exist %WORK_PATH%\bin mkdir %WORK_PATH%\bin
+
+:: 如果正在运行则杀死进程 如果没找到不要报错
+taskkill /IM toolbox.exe /F
+
 :: 拷贝生成的exe到bin目录
 cp %WORK_PATH%\build\toolbox.exe %WORK_PATH%\bin\
 :: 根据cp命令返回值输出

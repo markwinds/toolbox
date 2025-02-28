@@ -8,6 +8,22 @@
 #include "tray.h"
 #endif
 
+// 浏览器打开一个tab页
+void open_browser(const std::string& url) {
+#if defined(_WIN32) || defined(_WIN64)
+    std::string command = "start " + url;
+#elif defined(__APPLE__)
+    std::string command = "open " + url;
+#else
+    std::string command = "xdg-open " + url;
+#endif
+
+    int result = system(command.c_str());
+    if (result != 0) {
+        logE("打开浏览器失败，错误码: %d", result);
+    }
+}
+
 void do_main() {
     logW("=================program start==================");
 
@@ -19,6 +35,13 @@ void do_main() {
     logD("reg_static_file_handler success");
 
     Setting::get_instance().init();
+
+    // 起一个线程
+    std::thread([]() {
+        std::this_thread::sleep_for(std::chrono::microseconds(200));
+        // 浏览器打开一个tab页
+        open_browser("http://127.0.0.1:80");
+    }).detach();
 
     // 启动drogon
     drogon::app().run();

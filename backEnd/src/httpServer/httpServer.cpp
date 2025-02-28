@@ -26,9 +26,6 @@ int reg_static_file_handler() {
 
             string path = req->getPath().substr(strlen(STATIC_FILE_PATH) + 2);
 
-            logD("get static file: %s", path.c_str());
-            logD("req->getPath(): %s", req->getPath().c_str());
-
             if (0 != static_file_get_file(path, data, content_type)) {
                 logE("not find file: %s", path.c_str());
                 auto resp = drogon::HttpResponse::newHttpResponse();
