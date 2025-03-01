@@ -25,7 +25,8 @@ jobs:
 
       - name: Set up Clang
         run: |
-          choco install llvm -y
+          choco install llvm --force -y
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
           refreshenv
 
       - name: Compile web directory
