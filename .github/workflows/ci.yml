@@ -18,10 +18,9 @@ jobs:
         with:
           node-version: '14'
 
-      - name: Install Node.js dependencies
+      - name: Install Ninja
         run: |
-          cd web
-          npm install
+          choco install ninja --force -y
 
       # - name: Set up Clang
       #   run: |
@@ -32,6 +31,7 @@ jobs:
       - name: Compile web directory
         run: |
           cd web
+          npm install
           npm run build
 
       - name: Run build.bat script
