@@ -1,0 +1,100 @@
+on:
+  # push:
+  #   tags:
+  #     - 'v*'  # 仅当标签以 "v" 开头时触发
+  workflow_dispatch:  # 手动触发
+    inputs:
+      release_version:
+        description: 'The version for the release'
+        required: true
+        default: 'v0.0.0'
+      release_body:
+        description: 'Release description'
+        required: true
+        default: 'release'
+
+
+jobs:
+  build:
+    name: Build and Release on Windows and Linux
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest]
+        # os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Node
+      uses: actions/setup-node@v3
+
+    - name: Install Yarn via npm
+      run: npm install -g yarn
+
+    - name: Install Ninja
+      run: |
+        choco install ninja --force -y
+
+    - name: Run build
+      if: runner.os == 'Windows'
+      run: |
+        cd web
+        npm install
+        npm run build
+        cd ../backEnd
+        ./build.bat
+
+    - name: Run build
+      if: runner.os == 'Linux'
+      run: |
+        cd script
+        chmod +x build_ci.sh
+        ./build_ci.sh
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: toolbox.exe
+        path: backEnd/bin/toolbox.exe
+
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: toolbox.exe
+        path: ./
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      with:
+        tag_name: ${{ github.event.inputs.release_version }}
+        release_name: ${{ github.event.inputs.release_version }}
+        body: ${{ github.event.inputs.release_body }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset for Windows
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: toolbox.exe
+        asset_name: toolbox.exe
+        asset_content_type: application/octet-stream
+        # asset_content_type: application/octet-stream
