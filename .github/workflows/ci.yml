@@ -37,9 +37,12 @@ jobs:
           cd backEnd
           ./build.bat
 
+      - name: Compress build artifacts
+        run: |
+          powershell Compress-Archive -Path backEnd/bin/toolbox.exe -DestinationPath backEnd/bin/toolbox.zip
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: |
-            backEnd/bin/toolbox.exe
+          path: backEnd/bin/toolbox.zip

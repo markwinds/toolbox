@@ -56,11 +56,16 @@ jobs:
         chmod +x build_ci.sh
         ./build_ci.sh
 
+    - name: Compress build artifacts
+      if: runner.os == 'Windows'
+      run: |
+        powershell Compress-Archive -Path backEnd/bin/toolbox.exe -DestinationPath backEnd/bin/toolbox.zip
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: toolbox.exe
-        path: backEnd/bin/toolbox.exe
+        name: toolbox.zip
+        path: backEnd/bin/toolbox.zip
 
 
   release:
@@ -75,7 +80,7 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
-        name: toolbox.exe
+        name: toolbox.zip
         path: ./
 
     - name: Create GitHub Release
@@ -96,7 +101,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PAT }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: toolbox.exe
-        asset_name: toolbox.exe
-        asset_content_type: application/octet-stream
-        # asset_content_type: application/octet-stream
+        asset_path: toolbox.zip
+        asset_name: toolbox.zip
+        asset_content_type: application/zip
