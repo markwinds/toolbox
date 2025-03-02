@@ -1,3 +1,5 @@
+name: Build and Release
+
 on:
   # push:
   #   tags:
@@ -71,7 +73,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Download artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: toolbox.exe
         path: ./
