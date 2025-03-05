@@ -230,12 +230,20 @@ if exist %LIB_PATH%\libssl.lib (
 
     cd %WORK_PATH%
     cd third/src/openssl
+    ls
     :: clang-cl（MSVC 兼容 Clang 编译器）
     perl Configure VC-WIN64A no-shared no-apps no-tests --prefix=%WORK_PATH%\third\src\openssl\install CC=clang-cl
+    nmake clean
     nmake
     nmake install
 
+    xcopy /E /Y %WORK_PATH%\third\src\openssl\install\include\* %INC_PATH%\
+    xcopy /Y %WORK_PATH%\third\src\openssl\install\lib\libssl.lib %LIB_PATH%\
+    xcopy /Y %WORK_PATH%\third\src\openssl\install\lib\libcrypto.lib %LIB_PATH%\
+
     echo openssl ok
+    git checkout -- .
+    cd %WORK_PATH%
 )
 goto :eof
 
