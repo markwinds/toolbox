@@ -39,6 +39,14 @@ jobs:
     - name: Install Ninja
       run: |
         choco install ninja --force -y
+        
+    - name: Install Perl
+      run: |
+        choco install strawberryperl -y
+
+    - name: Install NASM
+      run: |
+        choco install nasm -y
 
     - name: Run build
       if: runner.os == 'Windows'

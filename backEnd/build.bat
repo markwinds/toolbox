@@ -23,6 +23,8 @@ call :build_libzip
 call :copy_json
 call :build_jsoncpp
 call :build_drogon
+call :build_openssl
+@REM call :build_libcurl
 
 :: 编译项目
 cd %WORK_PATH%
@@ -199,6 +201,70 @@ if exist %LIB_PATH%\drogon.lib (
     xcopy /E /Y install\include\* %INC_PATH%\
     xcopy /Y install\lib\*.lib %LIB_PATH%\
     echo drogon ok
+    cd %WORK_PATH%
+)
+goto :eof
+
+:: 编译openssl
+:build_openssl
+:: 查看lib中是否存在libssl.lib 如果不存在则编译openssl
+if exist %LIB_PATH%\libssl.lib (
+    echo libssl.lib exists, skip build
+) else (
+    :: 载入 Visual Studio 环境
+    for /f "tokens=*" %%i in ('"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath') do (
+        call "%%i\VC\Auxiliary\Build\vcvars64.bat"
+    )
+
+    where perl >nul 2>&1
+    if %ERRORLEVEL% neq 0 (
+        echo 未找到 Perl。请安装 Strawberry Perl
+        exit /b 1
+    )
+
+    where nasm >nul 2>&1
+    if %ERRORLEVEL% neq 0 (
+        echo 警告: 未找到 NASM。某些优化的汇编代码可能无法编译
+        exit /b 1
+    )
+
+    cd %WORK_PATH%
+    cd third/src/openssl
+    :: clang-cl（MSVC 兼容 Clang 编译器）
+    perl Configure VC-WIN64A no-shared no-apps no-tests --prefix=%WORK_PATH%\third\src\openssl\install CC=clang-cl
+    nmake
+    nmake install
+
+    echo openssl ok
+)
+goto :eof
+
+:: 编译libcurl
+:build_libcurl
+:: 查看lib中是否存在libcurl.lib 如果不存在则编译libcurl
+if exist %LIB_PATH%\libcurl.lib (
+    echo libcurl.lib exists, skip build
+) else (
+    cd %WORK_PATH%
+    echo libcurl.lib does not exist
+    cd third/src/libcurl
+    mkdir build
+    cd build
+    cmake .. -G Ninja ^
+        -DCMAKE_BUILD_TYPE=Release ^
+        -DCMAKE_C_COMPILER=clang ^
+        -DCMAKE_CXX_COMPILER=clang++ ^
+        -DOPENSSL_ROOT_DIR=%INC_PATH%\openssl ^ 
+        -DOPENSSL_LIBRARIES=%LIB_PATH%\libssl.lib;%LIB_PATH%\libcrypto.lib ^ 
+        -DCMAKE_INSTALL_PREFIX=install
+    ninja
+    ninja install
+    :: 拷贝生成的库和头文件
+    :: 为libcurl的头文件单独创建一个文件夹 并拷贝头文件
+    mkdir %INC_PATH%\libcurl
+    xcopy /E /Y install\include\* %INC_PATH%\libcurl\
+    xcopy /E /Y install\lib\libcurl.lib %LIB_PATH%\
+    echo libcurl ok
     cd %WORK_PATH%
 )
 goto :eof

@@ -10,3 +10,6 @@
 [submodule "backEnd/third/src/jsoncpp"]
 	path = backEnd/third/src/jsoncpp
 	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "backEnd/third/src/openssl"]
+	path = backEnd/third/src/openssl
+	url = https://github.com/openssl/openssl.git
