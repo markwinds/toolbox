@@ -13,9 +13,9 @@ if not exist %INC_PATH% mkdir %INC_PATH%
 if not exist %LIB_PATH% mkdir %LIB_PATH%
 
 :: 如果子仓库没有检出 则检出子仓库
-if not exist %WORK_PATH%\third\src\drogon\.gitignore (
-    git submodule update --init --recursive
-)
+@REM if not exist %WORK_PATH%\third\src\drogon\.gitignore (
+@REM     git submodule update --init --recursive
+@REM )
 
 :: 编译依赖库
 call :build_zlib
