@@ -28,11 +28,11 @@ jobs:
         run: |
           choco install nasm -y
 
-      # - name: Set up Clang
-      #   run: |
-      #     choco install llvm --force -y
-      #     Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-      #     refreshenv
+      - name: Set up Clang
+        run: |
+          choco install llvm -y
+          Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+          refreshenv
 
       - name: Compile web directory
         run: |
