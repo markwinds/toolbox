@@ -20,6 +20,7 @@ git submodule add https://github.com/nih-at/libzip.git libzip
 git submodule add https://github.com/drogonframework/drogon.git drogon
 git submodule add https://github.com/open-source-parsers/jsoncpp.git jsoncpp
 git submodule add https://github.com/openssl/openssl.git openssl
+git submodule add https://github.com/curl/curl.git curl
 git reset --hard 38dd5fea31a7a2727c0a6f6b6b04252374796cab
 git submodule update --init --recursive
 

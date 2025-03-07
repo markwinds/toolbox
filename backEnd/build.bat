@@ -24,7 +24,7 @@ call :copy_json
 call :build_jsoncpp
 call :build_drogon
 call :build_openssl
-@REM call :build_libcurl
+call :build_libcurl
 
 :: 编译项目
 cd %WORK_PATH%
@@ -44,7 +44,7 @@ echo build toolbox success
 if not exist %WORK_PATH%\bin mkdir %WORK_PATH%\bin
 
 :: 如果正在运行则杀死进程 如果没找到不要报错
-taskkill /IM toolbox.exe /F
+taskkill /IM toolbox.exe /F 2>nul
 
 :: 拷贝生成的exe到bin目录
 cp %WORK_PATH%\build\toolbox.exe %WORK_PATH%\bin\
@@ -255,22 +255,27 @@ if exist %LIB_PATH%\libcurl.lib (
 ) else (
     cd %WORK_PATH%
     echo libcurl.lib does not exist
-    cd third/src/libcurl
+    cd third/src/curl
     mkdir build
     cd build
     cmake .. -G Ninja ^
         -DCMAKE_BUILD_TYPE=Release ^
         -DCMAKE_C_COMPILER=clang ^
         -DCMAKE_CXX_COMPILER=clang++ ^
-        -DOPENSSL_ROOT_DIR=%INC_PATH%\openssl ^ 
-        -DOPENSSL_LIBRARIES=%LIB_PATH%\libssl.lib;%LIB_PATH%\libcrypto.lib ^ 
+        -DBUILD_CURL_EXE=OFF ^
+        -DBUILD_LIBCURL_DOCS=OFF ^
+        -DBUILD_SHARED_LIBS=OFF ^
+        -DBUILD_STATIC_LIBS=ON ^
+        -DCURL_USE_OPENSSL=ON ^
+        -DOPENSSL_ROOT_DIR=%WORK_PATH%\third ^
+        -DZLIB_INCLUDE_DIR=%INC_PATH%\zlib ^
+        -DZLIB_LIBRARY=%LIB_PATH%\zlibstatic.lib ^
+        -DCURL_USE_LIBPSL=OFF ^
         -DCMAKE_INSTALL_PREFIX=install
     ninja
     ninja install
     :: 拷贝生成的库和头文件
-    :: 为libcurl的头文件单独创建一个文件夹 并拷贝头文件
-    mkdir %INC_PATH%\libcurl
-    xcopy /E /Y install\include\* %INC_PATH%\libcurl\
+    xcopy /E /Y install\include\* %INC_PATH%\
     xcopy /E /Y install\lib\libcurl.lib %LIB_PATH%\
     echo libcurl ok
     cd %WORK_PATH%

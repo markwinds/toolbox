@@ -13,3 +13,6 @@
 [submodule "backEnd/third/src/openssl"]
 	path = backEnd/third/src/openssl
 	url = https://github.com/openssl/openssl.git
+[submodule "backEnd/third/src/curl"]
+	path = backEnd/third/src/curl
+	url = https://github.com/curl/curl.git
