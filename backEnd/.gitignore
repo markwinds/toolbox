@@ -4,5 +4,3 @@ build/release/*
 
 build/**
 
-third/inc/**
-third/lib/**
