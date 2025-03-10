@@ -10,12 +10,14 @@
     "postbuild": "node postbuild.js"
   },
   "dependencies": {
+    "@vicons/antd": "^0.13.0",
     "@vicons/ionicons5": "^0.12.0",
     "axios": "^1.7.7",
     "dotenv": "^16.4.5",
     "naive-ui": "^2.40.1",
     "vue": "^3.5.12",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.4.5",
+    "xicons": "^1.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",

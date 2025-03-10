@@ -279,6 +279,11 @@
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.17.13.tgz#786e2d67cfd95e32862143abe7463a7f90c300eb"
   integrity sha512-lfx+dftrEZcdBPczf9d0Qv0x+j/rfNCMuC6OcfXmO8gkfeNAY88PgKUbvG56whcN23gc27yenwF6oJZXGFpYxg==
 
+"@vicons/antd@^0.13.0":
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/@vicons/antd/-/antd-0.13.0.tgz#a81d1fb4acb276191d8e13e96817b768d0d2519c"
+  integrity sha512-yrUGoUSz2BbGupk9ghQOahc04n5H3MwUDM9pVPsLh9U1uqB47oRWZvYRiZaT1JKPqgTgSE6BXcVw4i9MOF4M+g==
+
 "@vicons/ionicons5@^0.12.0":
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@vicons/ionicons5/-/ionicons5-0.12.0.tgz#c39fda04420dfae3b58053faf8aaf3555253299d"
@@ -681,3 +686,8 @@ vueuc@^0.4.63:
     seemly "^0.3.6"
     vdirs "^0.1.4"
     vooks "^0.2.4"
+
+xicons@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/xicons/-/xicons-1.0.0.tgz#4738133a74e2c1a3f752f03385bfb721358011d8"
+  integrity sha512-LIEQPAEQA55vRXXZym5RWtO20JC1/nGz02Jvcf2ufT21H2KTGAr8I4zEcoZM/2ADafkYPLROjZw6cKF5mO8Ckw==
