@@ -62,7 +62,6 @@
 import {onMounted, ref} from 'vue'
 import {useNotification, NSpace, NButton, NForm, NFormItem, NSelect, NInput, NInputNumber, NDivider, NCard, NSwitch, NTooltip, NIcon} from 'naive-ui'
 import { QuestionCircleOutlined } from '@vicons/antd' // 替换图标引入
-import {showInfo} from "../utils/notification.js"
 import {reqSuccessCode, service} from "../utils/request.js";
 
 const notification = useNotification()
@@ -99,8 +98,10 @@ async function getVersion() {
 }
 
 function updateSoftware() {
-  showInfo(notification, "good")
-
+  notification["info"]({
+    content: "good",
+    duration: 2000,
+  })
   //   // 显示加载遮罩
   //   showLoading();
   //
@@ -108,20 +109,72 @@ function updateSoftware() {
   //   setTimeout(hideLoading, 3000);
 }
 
-function exitProgram() {
-  alert('正在退出程序...')
+async function exitProgram() {
+  let res = await service({
+    url: baseUrl + '/exit',
+  })
+  if (res.code !== reqSuccessCode) {
+    notification["error"]({
+      content: "程序退出失败",
+      duration: 2000,
+    })
+    return
+  }
+  notification["success"]({
+    content: "程序已退出",
+    duration: 2000,
+  })
 }
 
-function restartProgram() {
-  alert('正在重启程序...')
+async function restartProgram() {
+  let res = await service({
+    url: baseUrl + '/restart',
+  })
+  if (res.code !== reqSuccessCode) {
+    notification["error"]({
+      content: "重启失败",
+      duration: 2000,
+    })
+    return
+  }
+  notification["success"]({
+    content: "正在重启程序...",
+    duration: 2000,
+  })
 }
 
-function saveAndRestart() {
-  alert('正在保存参数并重启程序...')
+async function saveAndRestart() {
+  let res = await service({
+    url: baseUrl + '/saveAndRestart',
+  })
+  if (res.code !== reqSuccessCode) {
+    notification["error"]({
+      content: "保存参数失败",
+      duration: 2000,
+    })
+    return
+  }
+  notification["success"]({
+    content: "保存参数成功，正在重启...",
+    duration: 2000,
+  })
 }
 
-function restoreDefaultsAndRestart() {
-  alert('正在恢复默认参数并重启程序...')
+async function restoreDefaultsAndRestart() {
+  let res = await service({
+    url: baseUrl + '/restoreDefaults',
+  })
+  if (res.code !== reqSuccessCode) {
+    notification["error"]({
+      content: "恢复默认参数失败",
+      duration: 2000,
+    })
+    return
+  }
+  notification["success"]({
+    content: "已恢复默认参数，正在重启...",
+    duration: 2000,
+  })
 }
 </script>
 

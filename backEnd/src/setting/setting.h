@@ -1,7 +1,3 @@
-//
-// Created by 14640 on 2024/11/10.
-//
-
 #pragma once
 
 #include "singleton.h"

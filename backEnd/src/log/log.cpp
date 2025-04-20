@@ -1,7 +1,3 @@
-//
-// Created by 14640 on 2024/11/5.
-//
-
 #include "log.h"
 #include <cstdarg>
 #include <cstdio>

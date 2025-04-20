@@ -1,7 +1,8 @@
 import axios from "axios"
 import {showLoading as showSpin, hideLoading as hideSpin} from "./loading.js";
-import {showError} from "./notification.js";
+import {useNotification} from "naive-ui";
 
+const notification = useNotification()
 let loadingCount = 0
 export let reqSuccessCode = 0
 
@@ -19,7 +20,14 @@ const hideLoading = () => {
     }
 }
 
-export const service = axios.create({
+const showError = (msg) => {
+    notification.error({
+        content: msg,
+        duration: 3000,
+        keepAliveOnHover: true
+    })
+}
+export const service = axios.create({ 
     baseURL: import.meta.env.VITE_BASE_API || '/',
     timeout: 10000, // 请求超时时间
 })
