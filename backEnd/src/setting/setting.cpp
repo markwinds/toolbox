@@ -1,7 +1,3 @@
-//
-// Created by 14640 on 2024/11/10.
-//
-
 #include "setting.h"
 #include "httpServer.h"
 #include <string>
@@ -22,7 +18,7 @@ int Setting::reg_http_handler() {
         BASE_URL + "/version",
         [&](const drogon::HttpRequestPtr&                         req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-            OK_RESP(TOOLBOX_VERSION + " build_" + get_compile_time());
+            OK_RESP_STR(TOOLBOX_VERSION + " build_" + get_compile_time());
         },
         {drogon::Get});
 

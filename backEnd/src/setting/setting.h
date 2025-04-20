@@ -1,14 +1,13 @@
 #pragma once
+#include <string>
 
-#include "singleton.h"
-
-class Setting : public Singleton<Setting> {
+class Setting {
 
   public:
-    int init();
+    static int init();
 
-    int reg_http_handler();
+    static int reg_http_handler();
 
   private:
-    std::string get_compile_time();
+    static std::string get_compile_time();
 };

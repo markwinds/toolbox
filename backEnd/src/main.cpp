@@ -34,7 +34,8 @@ void do_main() {
     reg_static_file_handler();
     logD("reg_static_file_handler success");
 
-    Setting::get_instance().init();
+    // 注册业务处理
+    Setting::init();
 
     // 起一个线程
     std::thread([]() {

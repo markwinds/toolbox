@@ -1,9 +1,9 @@
 #include "log.h"
 #include <cstdarg>
 #include <cstdio>
-#include <cstring>
 #include <ctime>
 #include <string>
+#include <thread>
 
 using namespace std;
 
@@ -25,14 +25,17 @@ void log(
 
     // 获取当前时间
     time_t  now = time(nullptr);
-    std::tm tm_info;
+    std::tm tm_info{};
     //    tm_info = *std::localtime(&now);
     localtime_s(&tm_info, &now);
+
+    // 获取线程ID
+    std::thread::id tid = std::this_thread::get_id();
 
     // 格式化输出
     write_len += snprintf(tmp + write_len,
                           sizeof(tmp) - write_len,
-                          "[%c][%04d-%02d-%02d %02d:%02d:%02d][%s:%s:%d] ",
+                          "[%c][%04d-%02d-%02d %02d:%02d:%02d][%s:%s:%d][tid:%x] ",
                           log_level_str[level],
                           tm_info.tm_year + 1900,
                           tm_info.tm_mon + 1,
@@ -42,7 +45,8 @@ void log(
                           tm_info.tm_sec,
                           file_name.c_str(),
                           func,
-                          line);
+                          line,
+                          tid);
 
     write_len += vsnprintf(tmp + write_len, sizeof(tmp) - write_len, format, args);
     va_end(args);
