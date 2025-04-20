@@ -1,10 +1,15 @@
 import axios from "axios"
-import {showLoading as showSpin, hideLoading as hideSpin} from "./loading.js";
-import {useNotification} from "naive-ui";
+import { showLoading as showSpin, hideLoading as hideSpin } from "./loading.js";
+import { useMessage } from "naive-ui";
 
-const notification = useNotification()
+let message = null
 let loadingCount = 0
-export let reqSuccessCode = 0
+export let reqSuccessCode = 200
+
+// 设置message实例
+export const setMessage = (msg) => {
+    message = msg
+}
 
 const showLoading = () => {
     if (loadingCount === 0) {
@@ -21,13 +26,15 @@ const hideLoading = () => {
 }
 
 const showError = (msg) => {
-    notification.error({
-        content: msg,
-        duration: 3000,
-        keepAliveOnHover: true
-    })
+    if (message) {
+        message.error(msg, {
+            duration: 3000,
+            keepAliveOnHover: true
+        })
+    }
 }
-export const service = axios.create({ 
+
+export const service = axios.create({
     baseURL: import.meta.env.VITE_BASE_API || '/',
     timeout: 10000, // 请求超时时间
 })
@@ -71,7 +78,7 @@ service.interceptors.response.use(
     (error) => {
         hideLoading();
         if (error.response) {
-            const {status, data} = error.response;
+            const { status, data } = error.response;
             if (status === 400) {
                 showError(status + '：请求错误')
             } else if (status === 401) {
@@ -93,4 +100,4 @@ service.interceptors.response.use(
     }
 )
 
-export default {service, reqSuccessCode}
+export default { service, reqSuccessCode, setMessage }

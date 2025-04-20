@@ -70,7 +70,7 @@ int reg_static_file_handler() {
     return 0;
 }
 
-json create_response(const std::string& code, const json& result) {
+json create_response(const int& code, const json& result) {
     json response;
     response["code"]   = code;
     response["result"] = result;

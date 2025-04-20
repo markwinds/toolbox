@@ -92,9 +92,11 @@ async function getVersion() {
     url: baseUrl + '/version',
   })
   if (res.code !== reqSuccessCode) {
+    console.log(res)
     return
   }
-  currentVersion.value = res.result.currentVersion
+  console.log(res.result)
+  currentVersion.value = res.result
 }
 
 function updateSoftware() {
