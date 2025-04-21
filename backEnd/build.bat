@@ -264,10 +264,14 @@ if exist %LIB_PATH%\libcurl.lib (
         -DCMAKE_CXX_COMPILER=clang++ ^
         -DBUILD_CURL_EXE=OFF ^
         -DBUILD_LIBCURL_DOCS=OFF ^
+        -DCURL_DISABLE_LDAP=ON ^
+        -DCURL_DISABLE_LDAPS=ON ^
         -DBUILD_SHARED_LIBS=OFF ^
         -DBUILD_STATIC_LIBS=ON ^
         -DCURL_USE_OPENSSL=ON ^
         -DOPENSSL_ROOT_DIR=%WORK_PATH%\third ^
+        -DOPENSSL_INCLUDE_DIR=%WORK_PATH%\third\inc ^
+        -DOPENSSL_LIBRARIES=%WORK_PATH%\third\lib ^
         -DZLIB_INCLUDE_DIR=%INC_PATH%\zlib ^
         -DZLIB_LIBRARY=%LIB_PATH%\zlibstatic.lib ^
         -DCURL_USE_LIBPSL=OFF ^
