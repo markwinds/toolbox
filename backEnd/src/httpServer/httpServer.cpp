@@ -12,9 +12,9 @@
 
 using namespace std;
 
-int reg_static_file_handler() {
+int regStaticFileHandler() {
     // 从程序中载入web静态文件
-    init_static_file();
+    initStaticFile();
 
     // 注册静态文件处理
     drogon::app().registerHandlerViaRegex(
@@ -26,7 +26,7 @@ int reg_static_file_handler() {
 
             string path = req->getPath().substr(strlen(STATIC_FILE_PATH) + 2);
 
-            if (0 != static_file_get_file(path, data, content_type)) {
+            if (0 != staticFileGetFile(path, data, content_type)) {
                 logE("not find file: %s", path.c_str());
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k404NotFound);
@@ -52,7 +52,7 @@ int reg_static_file_handler() {
 
             logD("get static file: %s", path.c_str());
 
-            if (0 != static_file_get_file(path, data, content_type)) {
+            if (0 != staticFileGetFile(path, data, content_type)) {
                 logE("not find file: %s", path.c_str());
                 auto resp = drogon::HttpResponse::newHttpResponse();
                 resp->setStatusCode(drogon::k404NotFound);
@@ -70,7 +70,7 @@ int reg_static_file_handler() {
     return 0;
 }
 
-json create_response(const int& code, const json& result) {
+json createResponse(const int& code, const json& result) {
     json response;
     response["code"]   = code;
     response["result"] = result;

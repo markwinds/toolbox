@@ -216,11 +216,11 @@ async function getConfig() {
     // 将后端配置映射到前端设置对象
     const config = res.result
     settings.value = {
-      logLevel: mapLogLevel(config.log_level),
-      dataDirectory: config.data_dir,
+      logLevel: mapLogLevel(config.logLevel),
+      dataDirectory: config.dataDir,
       webPort: config.port,
-      proxyAddress: config.proxy_url,
-      remoteAccess: config.remote_access
+      proxyAddress: config.proxyUrl,
+      remoteAccess: config.remoteAccess
     }
 
     return true
@@ -239,11 +239,11 @@ async function saveConfig() {
   try {
     // 将前端设置对象映射到后端配置格式
     const config = {
-      log_level: mapLogLevelToBackend(settings.value.logLevel),
-      data_dir: settings.value.dataDirectory,
+      logLevel: mapLogLevelToBackend(settings.value.logLevel),
+      dataDir: settings.value.dataDirectory,
       port: settings.value.webPort,
-      proxy_url: settings.value.proxyAddress,
-      remote_access: settings.value.remoteAccess
+      proxyUrl: settings.value.proxyAddress,
+      remoteAccess: settings.value.remoteAccess
     }
 
     let res = await service({

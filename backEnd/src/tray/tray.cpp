@@ -23,7 +23,7 @@ LRESULT CALLBACK Tray::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
             HMENU hMenu = CreatePopupMenu();
 
             int count = 0;
-            for (auto& item : get_tray_instance().menu_map) {
+            for (auto& item : getTrayInstance().menuMap) {
                 AppendMenuW(hMenu, MF_STRING, ++count, item.first.c_str());
             }
 
@@ -37,8 +37,8 @@ LRESULT CALLBACK Tray::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case WM_COMMAND:
 
         wmId = LOWORD(wParam);
-        if (wmId > 0 && wmId <= get_tray_instance().menu_map.size()) {
-            auto it = get_tray_instance().menu_map.begin();
+        if (wmId > 0 && wmId <= getTrayInstance().menuMap.size()) {
+            auto it = getTrayInstance().menuMap.begin();
             std::advance(it, wmId - 1);
             it->second();
         }
@@ -54,7 +54,7 @@ LRESULT CALLBACK Tray::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-int Tray::add_tray(HINSTANCE const& hInstance, const std::wstring& title) {
+int Tray::addTray(HINSTANCE const& hInstance, const std::wstring& title) {
 
     std::thread t([=] {
         // 创建窗口类
@@ -107,8 +107,8 @@ int Tray::add_tray(HINSTANCE const& hInstance, const std::wstring& title) {
     return 0;
 }
 
-int Tray::reg_menu(const std::wstring& menu_name, MenuHandler handler) {
-    menu_map[menu_name] = handler;
+int Tray::regMenu(const std::wstring& menu_name, MenuHandler handler) {
+    menuMap[menu_name] = handler;
     return 0;
 }
 

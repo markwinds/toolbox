@@ -7,6 +7,6 @@
 #include <string>
 #include <vector>
 
-int init_static_file();
+int initStaticFile();
 
-int static_file_get_file(const std::string& path, std::vector<char>& data, std::string& mime_type);
+int staticFileGetFile(const std::string& path, std::vector<char>& data, std::string& mime_type);

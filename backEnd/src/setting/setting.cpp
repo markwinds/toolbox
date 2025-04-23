@@ -16,29 +16,29 @@ namespace fs = std::filesystem;
 
 // 静态成员变量初始化
 Config Setting::config_;
-const std::string Setting::config_file_path_ = "./config.json";
+const std::string Setting::configFilePath_ = "./config.json";
 
 // 用于存储 curl 响应数据的回调函数
-size_t write_callback(void* contents, size_t size, size_t nmemb, string* userp) {
+size_t writeCallback(void* contents, size_t size, size_t nmemb, string* userp) {
     userp->append((char*)contents, size * nmemb);
     return size * nmemb;
 }
 
 int Setting::init() {
     // 尝试从文件加载配置
-    load_config_from_file();
+    loadConfigFromFile();
 
     // 注册处理
-    reg_http_handler();
+    regHttpHandler();
     return 0;
 }
 
-int Setting::reg_http_handler() {
+int Setting::regHttpHandler() {
     drogon::app().registerHandler(
         BASE_URL + "/version",
         [&](const drogon::HttpRequestPtr&                         req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-            OK_RESP_STR(TOOLBOX_VERSION + " build_" + get_compile_time());
+            OK_RESP_STR(TOOLBOX_VERSION + " build_" + getCompileTime());
         },
         {drogon::Get});
 
@@ -47,7 +47,7 @@ int Setting::reg_http_handler() {
         [&](const drogon::HttpRequestPtr&                         req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
             // 返回当前配置
-            OK_RESP(get_config());
+            OK_RESP(getConfig());
         },
         {drogon::Get});
 
@@ -68,10 +68,10 @@ int Setting::reg_http_handler() {
                 auto reqJson = nlohmann::json::parse(json->asString());
 
                 // 更新配置
-                get_config().from_json(reqJson);
+                getConfig().fromJson(reqJson);
 
                 // 保存到文件
-                if (save_config_to_file()) {
+                if (saveConfigToFile()) {
                     OK_RESP_STR("配置已保存");
                 } else {
                     auto resp = drogon::HttpResponse::newHttpResponse();
@@ -93,10 +93,10 @@ int Setting::reg_http_handler() {
         [&](const drogon::HttpRequestPtr&                         req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
             // 重置为默认配置
-            reset_to_default();
+            resetToDefault();
 
             // 保存到文件
-            if (save_config_to_file()) {
+            if (saveConfigToFile()) {
                 OK_RESP_STR("配置已重置为默认值");
             } else {
                 auto resp = drogon::HttpResponse::newHttpResponse();
@@ -125,7 +125,7 @@ int Setting::reg_http_handler() {
             string response;
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_PROXY, HTTP_PROXY);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
             curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // 跳过 SSL 验证
             curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
@@ -153,13 +153,13 @@ int Setting::reg_http_handler() {
     return 0;
 }
 
-std::string Setting::get_compile_time() {
+std::string Setting::getCompileTime() {
     // __DATE__ 和 __TIME__ 宏
     std::string date = __DATE__; // 格式: "MMM DD YYYY"
     std::string time = __TIME__; // 格式: "HH:MM:SS"
 
     // 月份映射表
-    std::map<std::string, std::string> month_map = {{"Jan", "01"},
+    std::map<std::string, std::string> monthMap = {{"Jan", "01"},
                                                     {"Feb", "02"},
                                                     {"Mar", "03"},
                                                     {"Apr", "04"},
@@ -173,7 +173,7 @@ std::string Setting::get_compile_time() {
                                                     {"Dec", "12"}};
 
     // 解析日期
-    std::string month = month_map[date.substr(0, 3)];
+    std::string month = monthMap[date.substr(0, 3)];
     std::string day   = date.substr(4, 2);
     std::string year  = date.substr(7, 4);
 
@@ -183,41 +183,41 @@ std::string Setting::get_compile_time() {
     }
 
     // 格式化为 YYYY-MM-DD HH:MM:SS
-    std::ostringstream formatted_date;
-    formatted_date << year << "-" << month << "-" << (day.size() == 1 ? "0" : "") << day << "_"
-                   << time;
+    std::ostringstream formattedDate;
+    formattedDate << year << "-" << month << "-" << (day.size() == 1 ? "0" : "") << day << "_"
+                 << time;
 
-    return formatted_date.str();
+    return formattedDate.str();
 }
 
-Config& Setting::get_config() {
+Config& Setting::getConfig() {
     return config_;
 }
 
-bool Setting::save_config_to_file() {
+bool Setting::saveConfigToFile() {
     try {
         // 创建配置文件目录（如果不存在）
-        fs::path config_path(config_file_path_);
-        fs::path dir_path = config_path.parent_path();
-        if (!dir_path.empty() && !fs::exists(dir_path)) {
-            fs::create_directories(dir_path);
+        fs::path configPath(configFilePath_);
+        fs::path dirPath = configPath.parent_path();
+        if (!dirPath.empty() && !fs::exists(dirPath)) {
+            fs::create_directories(dirPath);
         }
 
         // 将配置转换为JSON
         nlohmann::json j;
-        config_.to_json(j);
+        config_.toJson(j);
 
         // 写入文件
-        std::ofstream file(config_file_path_);
+        std::ofstream file(configFilePath_);
         if (!file.is_open()) {
-            logE("无法打开配置文件进行写入: %s", config_file_path_.c_str());
+            logE("无法打开配置文件进行写入: %s", configFilePath_.c_str());
             return false;
         }
 
         file << j.dump(4); // 使用缩进以提高可读性
         file.close();
 
-        logI("配置已保存到文件: %s", config_file_path_.c_str());
+        logI("配置已保存到文件: %s", configFilePath_.c_str());
         return true;
     } catch (const std::exception& e) {
         logE("保存配置到文件时出错: %s", e.what());
@@ -225,18 +225,18 @@ bool Setting::save_config_to_file() {
     }
 }
 
-bool Setting::load_config_from_file() {
+bool Setting::loadConfigFromFile() {
     try {
         // 检查文件是否存在
-        if (!fs::exists(config_file_path_)) {
-            logW("配置文件不存在: %s, 将使用默认配置", config_file_path_.c_str());
+        if (!fs::exists(configFilePath_)) {
+            logW("配置文件不存在: %s, 将使用默认配置", configFilePath_.c_str());
             return false;
         }
 
         // 读取文件
-        std::ifstream file(config_file_path_);
+        std::ifstream file(configFilePath_);
         if (!file.is_open()) {
-            logE("无法打开配置文件: %s", config_file_path_.c_str());
+            logE("无法打开配置文件: %s", configFilePath_.c_str());
             return false;
         }
 
@@ -246,9 +246,9 @@ bool Setting::load_config_from_file() {
         file.close();
 
         // 更新配置
-        config_.from_json(j);
+        config_.fromJson(j);
 
-        logI("从文件加载配置成功: %s", config_file_path_.c_str());
+        logI("从文件加载配置成功: %s", configFilePath_.c_str());
         return true;
     } catch (const std::exception& e) {
         logE("从文件加载配置时出错: %s", e.what());
@@ -256,7 +256,7 @@ bool Setting::load_config_from_file() {
     }
 }
 
-void Setting::reset_to_default() {
+void Setting::resetToDefault() {
     // 重置为默认值
     config_ = Config();
     logI("配置已重置为默认值");

@@ -11,8 +11,8 @@ using json = nlohmann::json;
 #define OK_RESP(data)                                            \
     do {                                                         \
         json j;                                                  \
-        data.to_json(j);                                         \
-        auto resp     = create_response(200, j);                 \
+        (data).toJson(j);                                        \
+        auto resp     = createResponse(200, j);                 \
         auto httpResp = drogon::HttpResponse::newHttpResponse(); \
         httpResp->setBody(resp.dump());                          \
         httpResp->addHeader("Content-Type", "application/json"); \
@@ -21,13 +21,13 @@ using json = nlohmann::json;
 
 #define OK_RESP_STR(data)                                        \
     do {                                                         \
-        auto resp     = create_response(200, data);              \
+        auto resp     = createResponse(200, data);              \
         auto httpResp = drogon::HttpResponse::newHttpResponse(); \
         httpResp->setBody(resp.dump());                          \
         httpResp->addHeader("Content-Type", "application/json"); \
         callback(httpResp);                                      \
     } while (0)
 
-int reg_static_file_handler();
+int regStaticFileHandler();
 
-json create_response(const int& code, const json& result);
+json createResponse(const int& code, const json& result);

@@ -10,17 +10,17 @@ using MenuHandler = void (*)();
 class Tray {
 
   public:
-    int add_tray(const HINSTANCE& hInstance, const std::wstring& title);
+    int addTray(const HINSTANCE& hInstance, const std::wstring& title);
 
-    int reg_menu(const std::wstring& menu_name, MenuHandler handler);
+    int regMenu(const std::wstring& menu_name, MenuHandler handler);
 
   private:
     static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
   private:
-    std::map<std::wstring, MenuHandler> menu_map;
+    std::map<std::wstring, MenuHandler> menuMap;
 };
 
-inline Tray& get_tray_instance() {
+inline Tray& getTrayInstance() {
     return Singleton<Tray>::get_instance();
 }

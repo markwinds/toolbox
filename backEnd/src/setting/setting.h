@@ -5,33 +5,33 @@
 #include <string>
 
 struct Config {
-    LogLevel     log_level     = LOG_LEVEL_DEBUG;
-    std::string  data_dir      = "./data"; // 数据目录
-    bool         remote_access = false;    // 是否允许远程访问
-    unsigned int port          = 6666;     // 监听端口
-    std::string  proxy_url     = "";       // 代理地址
+    LogLevel     logLevel     = LOG_LEVEL_DEBUG;
+    std::string  dataDir      = "./data"; // 数据目录
+    bool         remoteAccess = false;    // 是否允许远程访问
+    unsigned int port         = 6666;     // 监听端口
+    std::string  proxyUrl     = "";       // 代理地址
 
     // 将配置转换为JSON
-    void to_json(nlohmann::json& j) const {
-        j = nlohmann::json{{"log_level", static_cast<int>(log_level)},
-                           {"data_dir", data_dir},
-                           {"remote_access", remote_access},
+    void toJson(nlohmann::json& j) const {
+        j = nlohmann::json{{"logLevel", static_cast<int>(logLevel)},
+                           {"dataDir", dataDir},
+                           {"remoteAccess", remoteAccess},
                            {"port", port},
-                           {"proxy_url", proxy_url}};
+                           {"proxyUrl", proxyUrl}};
     }
 
     // 从JSON加载配置
-    void from_json(const nlohmann::json& j) {
-        if (j.contains("log_level"))
-            log_level = static_cast<LogLevel>(j["log_level"].get<int>());
-        if (j.contains("data_dir"))
-            data_dir = j["data_dir"].get<std::string>();
-        if (j.contains("remote_access"))
-            remote_access = j["remote_access"].get<bool>();
+    void fromJson(const nlohmann::json& j) {
+        if (j.contains("logLevel"))
+            logLevel = static_cast<LogLevel>(j["logLevel"].get<int>());
+        if (j.contains("dataDir"))
+            dataDir = j["dataDir"].get<std::string>();
+        if (j.contains("remoteAccess"))
+            remoteAccess = j["remoteAccess"].get<bool>();
         if (j.contains("port"))
             port = j["port"].get<unsigned int>();
-        if (j.contains("proxy_url"))
-            proxy_url = j["proxy_url"].get<std::string>();
+        if (j.contains("proxyUrl"))
+            proxyUrl = j["proxyUrl"].get<std::string>();
     }
 };
 
@@ -39,22 +39,22 @@ class Setting {
 
   public:
     static int init();
-    static int reg_http_handler();
+    static int regHttpHandler();
 
     // 获取当前配置
-    static Config& get_config();
+    static Config& getConfig();
 
     // 保存配置到文件
-    static bool save_config_to_file();
+    static bool saveConfigToFile();
 
     // 从文件加载配置
-    static bool load_config_from_file();
+    static bool loadConfigFromFile();
 
     // 重置为默认配置
-    static void reset_to_default();
+    static void resetToDefault();
 
   private:
-    static std::string       get_compile_time();
+    static std::string       getCompileTime();
     static Config            config_;
-    static const std::string config_file_path_;
+    static const std::string configFilePath_;
 };
