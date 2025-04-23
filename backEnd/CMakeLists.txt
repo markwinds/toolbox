@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections") # 函数级别切块
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto") # 链接时优化
+add_definitions(-DCURL_STATICLIB)  # 添加 CURL_STATICLIB 宏定义
 
 # 针对 Debug 模式设置编译选项
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
@@ -23,6 +26,7 @@ include_directories(third/inc/libzip)
 include_directories(third/inc/json)
 include_directories(third/inc/jsoncpp)
 include_directories(third/inc/drogon)
+include_directories(third/inc/curl)
 
 # ----------------------头文件 业务-------------------------
 include_directories(src/rc)
@@ -59,6 +63,10 @@ target_link_libraries(toolbox
         ${CMAKE_SOURCE_DIR}/third/lib/trantor.lib
         ${CMAKE_SOURCE_DIR}/third/lib/zlibstatic.lib
         ${CMAKE_SOURCE_DIR}/third/lib/zip.lib
+        ${CMAKE_SOURCE_DIR}/third/lib/libcurl.lib
+        ${CMAKE_SOURCE_DIR}/third/lib/libssl.lib
+        ${CMAKE_SOURCE_DIR}/third/lib/libcrypto.lib
+        crypt32
         ws2_32
         rpcrt4)
 

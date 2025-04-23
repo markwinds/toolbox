@@ -259,6 +259,9 @@ if exist %LIB_PATH%\libcurl.lib (
     mkdir build
     cd build
     cmake .. -G Ninja ^
+        -DCMAKE_CXX_FLAGS="-ffunction-sections -fdata-sections" ^
+        -DCMAKE_C_FLAGS="-ffunction-sections -fdata-sections" ^
+        -DCMAKE_EXE_LINKER_FLAGS="-Wl,--gc-sections" ^
         -DCMAKE_BUILD_TYPE=Release ^
         -DCMAKE_C_COMPILER=clang ^
         -DCMAKE_CXX_COMPILER=clang++ ^

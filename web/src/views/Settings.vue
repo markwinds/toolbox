@@ -70,11 +70,11 @@ const baseUrl = 'setting'
 const currentVersion = ref('1.0.0')
 const latestVersion = ref('1.1.0')
 const settings = ref({
-  logLevel: 'info',
-  dataDirectory: '/path/to/data',
-  webPort: 8080,
-  proxyAddress: 'http://proxy.example.com',
-  remoteAccess: false  // 新增远程访问配置项
+  logLevel: 'debug',
+  dataDirectory: './data',
+  webPort: 6666,
+  proxyAddress: '',
+  remoteAccess: false
 })
 const logLevelOptions = [
   {label: 'Debug', value: 'debug'},
@@ -85,6 +85,7 @@ const logLevelOptions = [
 
 onMounted(() => {
   getVersion()
+  getConfig()
 })
 
 async function getVersion() {
@@ -101,14 +102,9 @@ async function getVersion() {
 
 function updateSoftware() {
   notification["info"]({
-    content: "good",
+    content: "正在检查更新...",
     duration: 2000,
   })
-  //   // 显示加载遮罩
-  //   showLoading();
-  //
-  // // 模拟加载过程，3秒后移除加载遮罩
-  //   setTimeout(hideLoading, 3000);
 }
 
 async function exitProgram() {
@@ -146,12 +142,18 @@ async function restartProgram() {
 }
 
 async function saveAndRestart() {
+  // 先保存配置
+  if (!await saveConfig()) {
+    return
+  }
+
+  // 然后重启
   let res = await service({
-    url: baseUrl + '/saveAndRestart',
+    url: baseUrl + '/restart',
   })
   if (res.code !== reqSuccessCode) {
     notification["error"]({
-      content: "保存参数失败",
+      content: "重启失败",
       duration: 2000,
     })
     return
@@ -163,8 +165,10 @@ async function saveAndRestart() {
 }
 
 async function restoreDefaultsAndRestart() {
+  // 重置配置
   let res = await service({
-    url: baseUrl + '/restoreDefaults',
+    url: baseUrl + '/resetConfig',
+    method: 'post'
   })
   if (res.code !== reqSuccessCode) {
     notification["error"]({
@@ -173,10 +177,124 @@ async function restoreDefaultsAndRestart() {
     })
     return
   }
+
+  // 重新获取配置
+  await getConfig()
+
+  // 重启
+  res = await service({
+    url: baseUrl + '/restart',
+  })
+  if (res.code !== reqSuccessCode) {
+    notification["error"]({
+      content: "重启失败",
+      duration: 2000,
+    })
+    return
+  }
+
   notification["success"]({
     content: "已恢复默认参数，正在重启...",
     duration: 2000,
   })
+}
+
+// 获取配置
+async function getConfig() {
+  try {
+    let res = await service({
+      url: baseUrl + '/config',
+    })
+    if (res.code !== reqSuccessCode) {
+      notification["error"]({
+        content: "获取配置失败",
+        duration: 2000,
+      })
+      return false
+    }
+
+    // 将后端配置映射到前端设置对象
+    const config = res.result
+    settings.value = {
+      logLevel: mapLogLevel(config.log_level),
+      dataDirectory: config.data_dir,
+      webPort: config.port,
+      proxyAddress: config.proxy_url,
+      remoteAccess: config.remote_access
+    }
+
+    return true
+  } catch (error) {
+    console.error('获取配置错误:', error)
+    notification["error"]({
+      content: "获取配置失败: " + error.message,
+      duration: 2000,
+    })
+    return false
+  }
+}
+
+// 保存配置
+async function saveConfig() {
+  try {
+    // 将前端设置对象映射到后端配置格式
+    const config = {
+      log_level: mapLogLevelToBackend(settings.value.logLevel),
+      data_dir: settings.value.dataDirectory,
+      port: settings.value.webPort,
+      proxy_url: settings.value.proxyAddress,
+      remote_access: settings.value.remoteAccess
+    }
+
+    let res = await service({
+      url: baseUrl + '/saveConfig',
+      method: 'post',
+      data: config
+    })
+
+    if (res.code !== reqSuccessCode) {
+      notification["error"]({
+        content: "保存配置失败",
+        duration: 2000,
+      })
+      return false
+    }
+
+    notification["success"]({
+      content: "配置已保存",
+      duration: 2000,
+    })
+    return true
+  } catch (error) {
+    console.error('保存配置错误:', error)
+    notification["error"]({
+      content: "保存配置失败: " + error.message,
+      duration: 2000,
+    })
+    return false
+  }
+}
+
+// 将后端日志级别映射到前端选项
+function mapLogLevel(level) {
+  const map = {
+    0: 'debug',
+    1: 'info',
+    2: 'warn',
+    3: 'error'
+  }
+  return map[level] || 'info'
+}
+
+// 将前端日志级别映射到后端值
+function mapLogLevelToBackend(level) {
+  const map = {
+    'debug': 0,
+    'info': 1,
+    'warn': 2,
+    'error': 3
+  }
+  return map[level] || 1
 }
 </script>
 
