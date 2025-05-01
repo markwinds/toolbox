@@ -28,6 +28,13 @@ call :build_libcurl
 
 :: 编译项目
 cd %WORK_PATH%
+
+:: 如果第一个参数是a则删除build目录
+if "%1"=="a" (
+    echo delete build directory
+    rd /s /q build
+)
+
 if not exist build mkdir build
 cd build
 :: 只在build目录不存在或CMake缓存不存在时运行CMake配置

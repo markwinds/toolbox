@@ -53,6 +53,9 @@ class Setting {
     // 重置为默认配置
     static void resetToDefault();
 
+    // 重启程序
+    static void restart();
+
   private:
     static std::string       getCompileTime();
     static Config            config_;

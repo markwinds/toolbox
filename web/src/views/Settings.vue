@@ -16,18 +16,18 @@
         <div class="item-title">设置项</div>
         <n-form :model="settings" label-placement="left" label-width="120">
           <n-form-item label="日志等级">
-            <n-select v-model="settings.logLevel" :options="logLevelOptions"/>
+            <n-select v-model:value="settings.logLevel" :options="logLevelOptions" />
           </n-form-item>
           <n-form-item label="数据存放目录">
-            <n-input v-model="settings.dataDirectory"/>
+            <n-input v-model:value="settings.dataDirectory" />
           </n-form-item>
           <n-form-item label="远程访问" label-width="120">
             <n-space align="center" justify="space-between">
-              <n-switch v-model:value="settings.remoteAccess"/>
+              <n-switch v-model:value="settings.remoteAccess" />
               <n-tooltip trigger="hover" placement="right">
                 <template #trigger>
                   <n-icon size="16" style="cursor: help;">
-                    <question-circle-outlined/>
+                    <question-circle-outlined />
                   </n-icon>
                 </template>
                 开启远程访问可能带来安全风险，建议仅在必要时开启，并设置强密码
@@ -35,10 +35,10 @@
             </n-space>
           </n-form-item>
           <n-form-item label="Web 监听端口">
-            <n-input-number v-model="settings.webPort"/>
+            <n-input-number v-model:value="settings.webPort" />
           </n-form-item>
           <n-form-item label="代理地址">
-            <n-input v-model="settings.proxyAddress"/>
+            <n-input v-model:value="settings.proxyAddress" />
           </n-form-item>
         </n-form>
       </div>
@@ -59,10 +59,10 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue'
-import {useNotification, NSpace, NButton, NForm, NFormItem, NSelect, NInput, NInputNumber, NDivider, NCard, NSwitch, NTooltip, NIcon} from 'naive-ui'
+import { onMounted, ref } from 'vue'
+import { useNotification, NSpace, NButton, NForm, NFormItem, NSelect, NInput, NInputNumber, NDivider, NCard, NSwitch, NTooltip, NIcon } from 'naive-ui'
 import { QuestionCircleOutlined } from '@vicons/antd' // 替换图标引入
-import {reqSuccessCode, service} from "../utils/request.js";
+import { reqSuccessCode, service } from "../utils/request.js";
 
 const notification = useNotification()
 
@@ -77,10 +77,10 @@ const settings = ref({
   remoteAccess: false
 })
 const logLevelOptions = [
-  {label: 'Debug', value: 'debug'},
-  {label: 'Info', value: 'info'},
-  {label: 'Warn', value: 'warn'},
-  {label: 'Error', value: 'error'},
+  { label: 'Debug', value: 'debug' },
+  { label: 'Info', value: 'info' },
+  { label: 'Warn', value: 'warn' },
+  { label: 'Error', value: 'error' },
 ]
 
 onMounted(() => {
@@ -201,78 +201,60 @@ async function restoreDefaultsAndRestart() {
 
 // 获取配置
 async function getConfig() {
-  try {
-    let res = await service({
-      url: baseUrl + '/config',
-    })
-    if (res.code !== reqSuccessCode) {
-      notification["error"]({
-        content: "获取配置失败",
-        duration: 2000,
-      })
-      return false
-    }
-
-    // 将后端配置映射到前端设置对象
-    const config = res.result
-    settings.value = {
-      logLevel: mapLogLevel(config.logLevel),
-      dataDirectory: config.dataDir,
-      webPort: config.port,
-      proxyAddress: config.proxyUrl,
-      remoteAccess: config.remoteAccess
-    }
-
-    return true
-  } catch (error) {
-    console.error('获取配置错误:', error)
+  let res = await service({
+    url: baseUrl + '/config',
+  })
+  if (res.code !== reqSuccessCode) {
     notification["error"]({
-      content: "获取配置失败: " + error.message,
+      content: "获取配置失败",
       duration: 2000,
     })
     return false
   }
+
+  // 将后端配置映射到前端设置对象
+  const config = res.result
+  settings.value = {
+    logLevel: mapLogLevel(config.logLevel),
+    dataDirectory: config.dataDir,
+    webPort: config.port,
+    proxyAddress: config.proxyUrl,
+    remoteAccess: config.remoteAccess
+  }
+
+  return true
 }
 
 // 保存配置
 async function saveConfig() {
-  try {
-    // 将前端设置对象映射到后端配置格式
-    const config = {
-      logLevel: mapLogLevelToBackend(settings.value.logLevel),
-      dataDir: settings.value.dataDirectory,
-      port: settings.value.webPort,
-      proxyUrl: settings.value.proxyAddress,
-      remoteAccess: settings.value.remoteAccess
-    }
+  // 将前端设置对象映射到后端配置格式
+  const config = {
+    logLevel: mapLogLevelToBackend(settings.value.logLevel),
+    dataDir: settings.value.dataDirectory,
+    port: settings.value.webPort,
+    proxyUrl: settings.value.proxyAddress,
+    remoteAccess: settings.value.remoteAccess
+  }
 
-    let res = await service({
-      url: baseUrl + '/saveConfig',
-      method: 'post',
-      data: config
-    })
+  let res = await service({
+    url: baseUrl + '/saveConfig',
+    method: 'post',
+    data: config
+  })
 
-    if (res.code !== reqSuccessCode) {
-      notification["error"]({
-        content: "保存配置失败",
-        duration: 2000,
-      })
-      return false
-    }
-
-    notification["success"]({
-      content: "配置已保存",
-      duration: 2000,
-    })
-    return true
-  } catch (error) {
-    console.error('保存配置错误:', error)
+  if (res.code !== reqSuccessCode) {
     notification["error"]({
-      content: "保存配置失败: " + error.message,
+      content: "保存配置失败",
       duration: 2000,
     })
     return false
   }
+
+  notification["success"]({
+    content: "配置已保存",
+    duration: 2000,
+  })
+  return true
 }
 
 // 将后端日志级别映射到前端选项
