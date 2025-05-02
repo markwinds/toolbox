@@ -5,10 +5,10 @@
 #include <string>
 
 struct Config {
-    LogLevel     logLevel     = LOG_LEVEL_DEBUG;
+    LogLevel     logLevel     = LOG_LEVEL_WARN;
     std::string  dataDir      = "./data"; // 数据目录
     bool         remoteAccess = false;    // 是否允许远程访问
-    unsigned int port         = 6666;     // 监听端口
+    unsigned int port         = 80;       // 监听端口
     std::string  proxyUrl     = "";       // 代理地址
 
     // 将配置转换为JSON

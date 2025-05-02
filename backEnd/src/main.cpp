@@ -27,8 +27,12 @@ void openBrowser(const std::string& url) {
 void doMain() {
     logW("=================program start==================");
 
+    // 尝试从文件加载配置
+    Setting::loadConfigFromFile();
+    auto config = Setting::getConfig();
+
     // 配置drogon
-    drogon::app().addListener("0.0.0.0", 80);
+    drogon::app().addListener(config.remoteAccess ? "0.0.0.0" : "127.0.0.1", config.port);
 
     // web静态文件处理
     regStaticFileHandler();
@@ -41,7 +45,7 @@ void doMain() {
     std::thread([]() {
         std::this_thread::sleep_for(std::chrono::microseconds(200));
         // 浏览器打开一个tab页
-        openBrowser("http://127.0.0.1:80");
+        openBrowser("http://127.0.0.1:" + std::to_string(Setting::getConfig().port));
     }).detach();
 
     // 启动drogon

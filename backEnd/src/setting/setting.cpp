@@ -13,6 +13,9 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+#define HTTP_HEADER_BROWSER_STR \
+    R"(Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36)"
+
 // 静态成员变量初始化
 Config            Setting::config_;
 const std::string Setting::configFilePath_ = "./config.json";
@@ -24,9 +27,6 @@ size_t writeCallback(void* contents, size_t size, size_t nmemb, string* userp) {
 }
 
 int Setting::init() {
-    // 尝试从文件加载配置
-    loadConfigFromFile();
-
     // 注册处理
     regHttpHandler();
     return 0;
@@ -101,13 +101,12 @@ int Setting::regHttpHandler() {
         BASE_URL + "/restart",
         [&](const drogon::HttpRequestPtr&                         req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-            thread t1([]() {
+            thread([]() {
                 // 休眠 1 秒，等待请求处理完成
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 // 重启程序
                 restart();
-            });
-            t1.detach();
+            }).detach();
             OK_RESP();
         },
         {drogon::Get});
@@ -116,14 +115,13 @@ int Setting::regHttpHandler() {
         BASE_URL + "/exit",
         [&](const drogon::HttpRequestPtr&                         req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-            thread t1([]() {
+            thread([]() {
                 logF("exit program");
                 // 休眠 1 秒，等待请求处理完成
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 // 退出程序
                 exit(0);
-            });
-            t1.detach();
+            }).detach();
             OK_RESP();
         },
         {drogon::Get});
@@ -134,9 +132,10 @@ int Setting::regHttpHandler() {
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
             string url = string("https://api.github.com/repos/") + GITHUB_OWNER + "/" +
                          GITHUB_REPO + "/releases/latest";
-            int    ret = ERROR_CODE_UNKNOWN;
-            string errMsg;
-            string response;
+            int      ret = ERROR_CODE_UNKNOWN;
+            string   errMsg;
+            string   response;
+            CURLcode res;
 
             CURL* curl = curl_easy_init();
             if (!curl) {
@@ -150,24 +149,18 @@ int Setting::regHttpHandler() {
             }
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-            curl_easy_setopt(
-                curl,
-                CURLOPT_USERAGENT,
-                R"(Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36)");
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_HEADER_BROWSER_STR);
 
-            CURLcode res = curl_easy_perform(curl);
-            curl_easy_cleanup(curl);
-
+            res = curl_easy_perform(curl);
             if (res != CURLE_OK) {
-                auto err_resp = drogon::HttpResponse::newHttpResponse();
-                err_resp->setStatusCode(drogon::k500InternalServerError);
-                callback(err_resp);
-                return;
+                errMsg = curl_easy_strerror(res);
+                logE("curl_easy_perform() failed: %s", errMsg.c_str());
+                goto exit;
             }
+            curl_easy_cleanup(curl);
+            curl = nullptr;
 
-            auto resp = drogon::HttpResponse::newHttpResponse();
-            resp->setBody(response);
-            callback(resp);
+            OK_RESP_STR(response);
 
         exit:
             if (curl) {
