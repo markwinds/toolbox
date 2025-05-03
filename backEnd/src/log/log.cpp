@@ -7,6 +7,24 @@
 
 using namespace std;
 
+// 全局日志级别，默认为WARN
+static LogLevel g_logLevel = LOG_LEVEL_WARN;
+
+// 获取当前日志级别
+LogLevel getLogLevel() {
+    return g_logLevel;
+}
+
+// 设置当前日志级别
+void setLogLevel(LogLevel level) {
+    g_logLevel = level;
+}
+
+// 检查给定的日志级别是否应该被记录
+bool shouldLog(LogLevel level) {
+    return level >= g_logLevel;
+}
+
 std::string getFileName(const std::string& path) {
     size_t pos = path.find_last_of("/\\");
     return (pos == std::string::npos) ? path : path.substr(pos + 1);
@@ -14,6 +32,11 @@ std::string getFileName(const std::string& path) {
 
 void log(
     const LogLevel& level, const char* file, const char* func, int line, const char* format, ...) {
+    // 检查日志级别 (这里是双重检查，宏定义中已经检查过一次)
+    if (!shouldLog(level)) {
+        return;
+    }
+
     va_list args;
     va_start(args, format);
     char tmp[2048]       = {0};

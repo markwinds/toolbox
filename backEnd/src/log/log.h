@@ -8,6 +8,13 @@ enum LogLevel {
     LOG_LEVEL_FATAL = 4,
 };
 
+// 获取和设置当前日志级别
+LogLevel getLogLevel();
+void     setLogLevel(LogLevel level);
+
+// 检查给定的日志级别是否应该被记录
+bool shouldLog(LogLevel level);
+
 void log(
     const LogLevel& level, const char* file, const char* func, int line, const char* format, ...)
     __attribute__((format(scanf, 5, 6)));

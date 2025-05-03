@@ -4,8 +4,8 @@ project(toolbox)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections") # 函数级别切块
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto") # 链接时优化
 add_definitions(-DCURL_STATICLIB)  # 添加 CURL_STATICLIB 宏定义

@@ -288,7 +288,7 @@ void Setting::restart() {
 #ifdef WIN32
     // 获取当前程序的路径
     char szFilePath[MAX_PATH];
-    GetModuleFileName(NULL, szFilePath, MAX_PATH);
+    GetModuleFileName(nullptr, szFilePath, MAX_PATH);
 
     // 启动新进程
     WinExec(szFilePath, SW_SHOWNORMAL);

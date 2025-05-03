@@ -54,8 +54,8 @@ if not exist %WORK_PATH%\bin mkdir %WORK_PATH%\bin
 taskkill /IM toolbox.exe /F 2>nul
 
 :: 拷贝生成的exe到bin目录
-cp %WORK_PATH%\build\toolbox.exe %WORK_PATH%\bin\
-:: 根据cp命令返回值输出
+xcopy /E /Y %WORK_PATH%\build\toolbox.exe %WORK_PATH%\bin\
+:: 根据xcopy命令返回值输出
 if %errorlevel% equ 0 (
     echo create %WORK_PATH%\bin\toolbox.exe success
 ) else (

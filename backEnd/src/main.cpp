@@ -25,11 +25,18 @@ void openBrowser(const std::string& url) {
 }
 
 void doMain() {
+    // 设置初始日志级别为INFO，确保启动信息能够被记录
+    setLogLevel(LOG_LEVEL_INFO);
+
     logW("=================program start==================");
 
     // 尝试从文件加载配置
     Setting::loadConfigFromFile();
     auto config = Setting::getConfig();
+
+    // 确保日志级别已应用（loadConfigFromFile中已经应用，这里是双重保障）
+    setLogLevel(config.logLevel);
+    logI("Current log level: %d", static_cast<int>(getLogLevel()));
 
     // 配置drogon
     drogon::app().addListener(config.remoteAccess ? "0.0.0.0" : "127.0.0.1", config.port);
