@@ -5,6 +5,24 @@
 set WORK_PATH=%~dp0
 cd /d %WORK_PATH%
 
+:: 解析参数
+set ARGS=%*
+:parse_args
+for /f "tokens=1* delims=," %%a in ("%ARGS%") do (
+    for /f "tokens=1,2 delims==" %%x in ("%%a") do (
+        if "%%y"=="" (
+            :: 没有值的参数设置为true
+            set "%%x=true"
+            echo Parsed argument: %%x=true
+        ) else (
+            set "%%x=%%y"
+            echo Parsed argument: %%x=%%y
+        )
+    )
+    set ARGS=%%b
+    if not "%ARGS%"=="" goto parse_args
+)
+
 :: 定义依赖库生成路径 inc和lib
 set INC_PATH=%WORK_PATH%\third\inc
 set LIB_PATH=%WORK_PATH%\third\lib
@@ -29,10 +47,16 @@ call :build_libcurl
 :: 编译项目
 cd %WORK_PATH%
 
-:: 如果第一个参数是a则删除build目录
-if "%1"=="a" (
-    echo delete build directory
-    rd /s /q build
+:: 如果需要重建则删除build目录
+if defined rebuild (
+    if "%rebuild%"=="true" (
+        echo delete build directory
+        rd /s /q build
+    )
+)
+
+if not defined version (
+    set version=v1.0.0
 )
 
 if not exist build mkdir build
@@ -43,7 +67,8 @@ if not exist CMakeCache.txt (
         -DCMAKE_C_COMPILER=clang ^
         -DCMAKE_CXX_COMPILER=clang++ ^
         -DCMAKE_BUILD_TYPE=Release ^
-        -DCMAKE_INSTALL_PREFIX=install
+        -DCMAKE_INSTALL_PREFIX=install ^
+        -DTOOLBOX_VERSION=%version%
 )
 ninja
 echo build toolbox success

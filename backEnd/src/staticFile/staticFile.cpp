@@ -5,12 +5,12 @@
 #include "staticFile.h"
 #include "log.h"
 #include "rc.h"
+#include <Windows.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <map>
 #include <string>
-#include <windows.h>
 #include <zip.h>
 
 #define FILE_PREFIX "dist/"
@@ -136,7 +136,7 @@ int decompressZipData(const unsigned char* compressed_data, size_t compressed_le
         // 分配内存来存储解压后的数据
         output_data = (unsigned char*)malloc(stat.size);
         if (output_data == nullptr) {
-            logE("malloc failed, size[%d]", stat.size);
+            logE("malloc failed, size[%llu]", stat.size);
             continue;
         }
 
@@ -157,7 +157,7 @@ int decompressZipData(const unsigned char* compressed_data, size_t compressed_le
         }
 
         // 处理解压后的数据
-        printf("条目 %s 解压成功，大小: %lu\n", entry_name, stat.size);
+        printf("uncompress %s ok，size: %llu\n", entry_name, stat.size);
 
         addStaticFileToMap(entry_name, output_data, stat.size);
 
@@ -228,7 +228,7 @@ int initStaticFile() {
         logE("load web zip file failed!");
         return -1;
     }
-    logD("load web zip file success, size[%d]", zip_file_size);
+    logD("load web zip file success, size[%lu]", zip_file_size);
 
     // 解压 并构建文件索引
     if (0 != decompressZipData((const unsigned char*)zip_file_data, zip_file_size)) {

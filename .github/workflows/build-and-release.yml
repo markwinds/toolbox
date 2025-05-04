@@ -55,7 +55,7 @@ jobs:
         npm install
         npm run build
         cd ../backEnd
-        ./build.bat
+        ./build.bat version=${{ github.event.inputs.release_version }}
 
     - name: Run build
       if: runner.os == 'Linux'

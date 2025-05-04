@@ -5,8 +5,11 @@
 #include <fstream>
 #include <string>
 
+#ifndef TOOLBOX_VERSION
+#define TOOLBOX_VERSION "v1.0.0"
+#endif
+
 #define BASE_URL std::string(LOCAL_API_BASE_URL) + "/setting"
-#define TOOLBOX_VERSION string("v1.0.0")
 #define GITHUB_OWNER "markwinds"
 #define GITHUB_REPO "toolbox"
 
@@ -37,7 +40,7 @@ int Setting::regHttpHandler() {
         BASE_URL + "/version",
         [&](const drogon::HttpRequestPtr&                         req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-            OK_RESP_STR(TOOLBOX_VERSION + " build_" + getCompileTime());
+            OK_RESP_STR(string(TOOLBOX_VERSION) + " build_" + getCompileTime());
         },
         {drogon::Get});
 

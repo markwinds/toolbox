@@ -4,6 +4,12 @@ project(toolbox)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 使用外部传入的版本信息
+if (DEFINED TOOLBOX_VERSION)
+    # 将宏传递给编译器
+    add_definitions(-DTOOLBOX_VERSION="${TOOLBOX_VERSION}")
+endif ()
+
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections") # 函数级别切块

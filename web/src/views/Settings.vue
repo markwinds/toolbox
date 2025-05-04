@@ -68,7 +68,7 @@ const notification = useNotification()
 
 const baseUrl = 'setting'
 const currentVersion = ref('1.0.0')
-const latestVersion = ref('1.1.0')
+const latestVersion = ref('0.0.0')
 const settings = ref({
   logLevel: 'debug',
   dataDirectory: './data',
@@ -85,6 +85,7 @@ const logLevelOptions = [
 
 onMounted(() => {
   getVersion()
+  getLatestVersion()
   getConfig()
 })
 
@@ -93,11 +94,19 @@ async function getVersion() {
     url: baseUrl + '/version',
   })
   if (res.code !== reqSuccessCode) {
-    console.log(res)
     return
   }
-  console.log(res.result)
   currentVersion.value = res.result
+}
+
+async function getLatestVersion() {
+  let res = await service({
+    url: baseUrl + '/latestVersion',
+  })
+  if (res.code !== reqSuccessCode) {
+    return
+  }
+  latestVersion.value = res.result
 }
 
 function updateSoftware() {
