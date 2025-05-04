@@ -181,6 +181,15 @@ int Setting::regHttpHandler() {
         },
         {drogon::Get});
 
+    drogon::app().registerHandler(
+        BASE_URL + "/update",
+        [&](const drogon::HttpRequestPtr&                         req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
+
+        },
+        {drogon::Get}
+        )
+
     return 0;
 }
 

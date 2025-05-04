@@ -6,7 +6,7 @@
         <div class="version-info">
           <div class="item">当前版本: {{ currentVersion }}</div>
           <div class="item">最新版本: {{ latestVersion }}</div>
-          <n-button type="primary" class="update-btn" @click="updateSoftware">更新</n-button>
+          <n-button v-if="hasNewVersion" type="primary" class="update-btn" @click="updateSoftware">更新</n-button>
         </div>
       </div>
     </n-card>
@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useNotification, NSpace, NButton, NForm, NFormItem, NSelect, NInput, NInputNumber, NDivider, NCard, NSwitch, NTooltip, NIcon } from 'naive-ui'
 import { QuestionCircleOutlined } from '@vicons/antd' // 替换图标引入
 import { reqSuccessCode, service } from "../utils/request.js";
@@ -69,6 +69,7 @@ const notification = useNotification()
 const baseUrl = 'setting'
 const currentVersion = ref('1.0.0')
 const latestVersion = ref('0.0.0')
+const hasNewVersion = computed(() => compareVersions(latestVersion.value, currentVersion.value) > 0)
 const settings = ref({
   logLevel: 'debug',
   dataDirectory: './data',
@@ -83,10 +84,19 @@ const logLevelOptions = [
   { label: 'Error', value: 'error' },
 ]
 
-onMounted(() => {
-  getVersion()
-  getLatestVersion()
-  getConfig()
+onMounted(async () => {
+  await getVersion()
+  await getLatestVersion()
+  await getConfig()
+  
+  // Check for updates on page load
+  if (hasNewVersion.value) {
+    notification["warning"]({
+      title: "发现新版本",
+      content: `当前版本 ${currentVersion.value}，最新版本 ${latestVersion.value}，建议更新到最新版本。`,
+      duration: 5000,
+    })
+  }
 })
 
 async function getVersion() {
@@ -109,9 +119,15 @@ async function getLatestVersion() {
   latestVersion.value = res.result
 }
 
-function updateSoftware() {
-  notification["info"]({
-    content: "正在检查更新...",
+async function updateSoftware() {
+  let res = await service({
+    url: baseUrl + '/update',
+  })
+  if (res.code !== reqSuccessCode) {
+    return
+  }
+  notification["success"]({
+    content: "更新成功",
     duration: 2000,
   })
 }
@@ -274,7 +290,7 @@ function mapLogLevel(level) {
     2: 'warn',
     3: 'error'
   }
-  return map[level] || 'info'
+  return map[level]
 }
 
 // 将前端日志级别映射到后端值
@@ -286,6 +302,27 @@ function mapLogLevelToBackend(level) {
     'error': 3
   }
   return map[level]
+}
+
+function cleanVersion(version) {
+  // 匹配 x.y.z 格式的版本号，忽略后面的其他信息
+  const match = version.match(/(\d+\.\d+\.\d+)/)
+  return match ? match[1] : version
+}
+
+function compareVersions(v1, v2) {
+  // 清理版本号，只保留 x.y.z 格式
+  const cleanV1 = cleanVersion(v1)
+  const cleanV2 = cleanVersion(v2)
+  
+  const parts1 = cleanV1.split('.').map(Number)
+  const parts2 = cleanV2.split('.').map(Number)
+  
+  for (let i = 0; i < 3; i++) {
+    if (parts1[i] > parts2[i]) return 1
+    if (parts1[i] < parts2[i]) return -1
+  }
+  return 0
 }
 </script>
 
