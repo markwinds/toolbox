@@ -39,7 +39,7 @@ void log(
 
     va_list args;
     va_start(args, format);
-    char tmp[2048]       = {0};
+    char tmp[20480]      = {0};
     int  write_len       = 0;
     char log_level_str[] = "DIWEF";
 
@@ -74,6 +74,7 @@ void log(
     write_len += vsnprintf(tmp + write_len, sizeof(tmp) - write_len, format, args);
     va_end(args);
     write_len += snprintf(tmp + write_len, sizeof(tmp) - write_len, "\n\n");
+    tmp[sizeof(tmp) - 1] = 0;
 
     // 写入日志文件
     FILE* fp = fopen("log.txt", "ab");

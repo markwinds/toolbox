@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections") # 函数级别切块
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -flto") # 链接时优化
+
 add_definitions(-DCURL_STATICLIB)  # 添加 CURL_STATICLIB 宏定义
 
 # 针对 Debug 模式设置编译选项

@@ -38,23 +38,23 @@ using json = nlohmann::json;
 // 失败响应 并携带错误信息
 #define ERROR_RESP_MSG(code, msg)                                \
     do {                                                         \
-        auto resp     = createResponse(code, msg);               \
+        auto resp     = createErrResponse(code, msg);            \
         auto httpResp = drogon::HttpResponse::newHttpResponse(); \
         httpResp->setBody(resp.dump());                          \
         httpResp->addHeader("Content-Type", "application/json"); \
         callback(httpResp);                                      \
     } while (0)
 
-#define PARSE_JSON()                                         \
-    do {                                                     \
-        try {                                                \
-            reqJson = nlohmann::json::parse(req->getBody()); \
-        } catch (const std::exception& e) {                  \
-            ret    = ERROR_CODE_PARAM_ERR;                   \
-            errMsg = e.what();                               \
-            logF("json parse error: %s", errMsg.c_str());    \
-            goto exit;                                       \
-        }                                                    \
+#define PARSE_JSON(res, orgStr)                           \
+    do {                                                  \
+        try {                                             \
+            (res) = nlohmann::json::parse(orgStr);        \
+        } catch (const std::exception& e) {               \
+            ret    = ERROR_CODE_PARAM_ERR;                \
+            errMsg = e.what();                            \
+            logE("json parse error: %s", errMsg.c_str()); \
+            goto exit;                                    \
+        }                                                 \
     } while (0)
 
 /**

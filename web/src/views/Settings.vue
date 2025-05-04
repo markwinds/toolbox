@@ -30,7 +30,7 @@
                     <question-circle-outlined />
                   </n-icon>
                 </template>
-                开启远程访问可能带来安全风险，建议仅在必要时开启，并设置强密码
+                开启远程访问可能带来安全风险，建议仅在必要时开启
               </n-tooltip>
             </n-space>
           </n-form-item>
@@ -276,7 +276,7 @@ function mapLogLevelToBackend(level) {
     'warn': 2,
     'error': 3
   }
-  return map[level] || 1
+  return map[level]
 }
 </script>
 

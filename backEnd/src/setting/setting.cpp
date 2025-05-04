@@ -58,7 +58,7 @@ int Setting::regHttpHandler() {
             string errMsg;
             json   reqJson;
 
-            PARSE_JSON();
+            PARSE_JSON(reqJson, req->getBody());
 
             // 更新配置
             getConfig().fromJson(reqJson);
@@ -136,6 +136,8 @@ int Setting::regHttpHandler() {
             string   errMsg;
             string   response;
             CURLcode res;
+            json     latestRespJson;
+            string   latestVersionStr;
 
             CURL* curl = curl_easy_init();
             if (!curl) {
@@ -145,10 +147,13 @@ int Setting::regHttpHandler() {
 
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             if (!config_.proxyUrl.empty()) {
+                logD("user proxy: %s", config_.proxyUrl.c_str());
                 curl_easy_setopt(curl, CURLOPT_PROXY, config_.proxyUrl.c_str());
             }
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // 跳过 SSL 验证
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
             curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_HEADER_BROWSER_STR);
 
             res = curl_easy_perform(curl);
@@ -160,7 +165,10 @@ int Setting::regHttpHandler() {
             curl_easy_cleanup(curl);
             curl = nullptr;
 
-            OK_RESP_STR(response);
+            logD("resp:\n%s", response.c_str());
+            PARSE_JSON(latestRespJson, response);
+            latestVersionStr = latestRespJson["name"];
+            OK_RESP_STR(latestVersionStr);
 
         exit:
             if (curl) {
