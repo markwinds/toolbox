@@ -70,21 +70,30 @@ if not exist CMakeCache.txt (
         -DCMAKE_INSTALL_PREFIX=install ^
         -DTOOLBOX_VERSION=%version%
 )
+
+if defined dev (
+    :: dev模式下 重新拉起程序
+    :: 如果正在运行则杀死进程 如果没找到不要报错
+    taskkill /IM toolbox.exe /F 2>nul
+)
+
 ninja
 echo build toolbox success
 :: 创建bin目录
 if not exist %WORK_PATH%\bin mkdir %WORK_PATH%\bin
 
-:: 如果正在运行则杀死进程 如果没找到不要报错
-taskkill /IM toolbox.exe /F 2>nul
-
-:: 拷贝生成的exe到bin目录
-xcopy /E /Y %WORK_PATH%\build\toolbox.exe %WORK_PATH%\bin\
-:: 根据xcopy命令返回值输出
-if %errorlevel% equ 0 (
-    echo create %WORK_PATH%\bin\toolbox.exe success
+if defined dev (
+    :: dev模式下 重新拉起程序
+    start "" "%WORK_PATH%\build\toolbox.exe" dev
 ) else (
-    echo create %WORK_PATH%\bin\toolbox.exe failed
+    :: 拷贝生成的exe到bin目录
+    xcopy /E /Y %WORK_PATH%\build\toolbox.exe %WORK_PATH%\bin\
+    :: 根据xcopy命令返回值输出
+    if %errorlevel% equ 0 (
+        echo create %WORK_PATH%\bin\toolbox.exe success
+    ) else (
+        echo create %WORK_PATH%\bin\toolbox.exe failed
+    )
 )
 
 :: 脚本结束

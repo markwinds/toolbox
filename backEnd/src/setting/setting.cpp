@@ -28,6 +28,11 @@ size_t writeCallback(void* contents, size_t size, size_t nmemb, string* userp) {
     userp->append((char*)contents, size * nmemb);
     return size * nmemb;
 }
+size_t hello(void* contents, size_t size, size_t nmemb, FILE* userp) {
+    fwrite(contents, size, nmemb, userp);
+    logI("write file");
+    return size * nmemb;
+}
 
 int Setting::init() {
     // 注册处理
@@ -185,10 +190,101 @@ int Setting::regHttpHandler() {
         BASE_URL + "/update",
         [&](const drogon::HttpRequestPtr&                         req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
+            int    ret = ERROR_CODE_UNKNOWN;
+            string errMsg;
+            string url = string("https://api.github.com/repos/") + GITHUB_OWNER + "/" +
+                         GITHUB_REPO + "/releases/latest";
+            string downloadUrl = string("https://github.com/") + GITHUB_OWNER + "/" + GITHUB_REPO +
+                                 "/releases/download/";
+            string   response;
+            CURLcode res;
+            json     latestRespJson;
+            string   latestVersionStr;
+            string   tmpDownloadFilename = "toolbox.zip";
+            FILE*    fd                  = nullptr;
 
+            CURL* curl = curl_easy_init();
+            if (!curl) {
+                logE("init curl failed");
+                goto exit;
+            }
+
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            if (!config_.proxyUrl.empty()) {
+                logD("user proxy: %s", config_.proxyUrl.c_str());
+                curl_easy_setopt(curl, CURLOPT_PROXY, config_.proxyUrl.c_str());
+            }
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // 跳过 SSL 验证
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_HEADER_BROWSER_STR);
+
+            res = curl_easy_perform(curl);
+            if (res != CURLE_OK) {
+                errMsg = curl_easy_strerror(res);
+                logE("curl_easy_perform() failed: %s", errMsg.c_str());
+                goto exit;
+            }
+            PARSE_JSON(latestRespJson, response);
+            latestVersionStr = latestRespJson["name"];
+
+            if (compareVersions(latestVersionStr, TOOLBOX_VERSION) <= 0) {
+                errMsg = "not need update";
+                logW("not need update, latestVersion:%s nowVersion:%s",
+                     latestVersionStr.c_str(),
+                     TOOLBOX_VERSION);
+                goto exit;
+            }
+            downloadUrl += latestVersionStr;
+            downloadUrl += "/toolbox.zip";
+            logI("download from url:%s", downloadUrl.c_str());
+
+            curl_easy_reset(curl);
+            curl_easy_setopt(curl, CURLOPT_URL, downloadUrl.c_str());
+            if (!config_.proxyUrl.empty()) {
+                logD("user proxy: %s", config_.proxyUrl.c_str());
+                curl_easy_setopt(curl, CURLOPT_PROXY, config_.proxyUrl.c_str());
+            }
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // 跳过 SSL 验证
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+            curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_HEADER_BROWSER_STR);
+
+            remove(tmpDownloadFilename.c_str());
+            fd = fopen(tmpDownloadFilename.c_str(), "ab");
+            if (fd == nullptr) {
+                errMsg = "can not open file:" + tmpDownloadFilename;
+                logE("%s", errMsg.c_str());
+                goto exit;
+            }
+
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, fd);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, hello);
+            logD("start do curl");
+            res = curl_easy_perform(curl);
+            logD("end do curl");
+            if (res != CURLE_OK) {
+                errMsg = curl_easy_strerror(res);
+                logE("curl_easy_perform() failed: %s", errMsg.c_str());
+                goto exit;
+            }
+
+            curl_easy_cleanup(curl);
+            curl = nullptr;
+            fclose(fd);
+            OK_RESP();
+            return;
+
+        exit:
+            if (curl) {
+                curl_easy_cleanup(curl);
+            }
+            if (fd) {
+                fclose(fd);
+            }
+            ERROR_RESP_MSG(ret, errMsg);
         },
-        {drogon::Get}
-        )
+        {drogon::Get});
 
     return 0;
 }
@@ -294,6 +390,46 @@ bool Setting::loadConfigFromFile() {
         logE("load config file err: %s", e.what());
         return false;
     }
+}
+
+int Setting::compareVersions(const std::string& version1, const std::string& version2) {
+    // 移除版本号中的 'v' 前缀
+    std::string v1 = version1[0] == 'v' ? version1.substr(1) : version1;
+    std::string v2 = version2[0] == 'v' ? version2.substr(1) : version2;
+
+    // 将版本号按照 '.' 分割
+    std::vector<int>  parts1;
+    std::vector<int>  parts2;
+    std::stringstream ss1(v1);
+    std::stringstream ss2(v2);
+    std::string       item;
+
+    // 解析第一个版本号
+    while (std::getline(ss1, item, '.')) {
+        parts1.push_back(std::stoi(item));
+    }
+
+    // 解析第二个版本号
+    while (std::getline(ss2, item, '.')) {
+        parts2.push_back(std::stoi(item));
+    }
+
+    // 补齐长度（用0填充）
+    size_t maxSize = parts1.size() > parts2.size() ? parts1.size() : parts2.size();
+    while (parts1.size() < maxSize)
+        parts1.push_back(0);
+    while (parts2.size() < maxSize)
+        parts2.push_back(0);
+
+    // 逐位比较
+    for (size_t i = 0; i < maxSize; i++) {
+        if (parts1[i] > parts2[i])
+            return 1;
+        if (parts1[i] < parts2[i])
+            return -1;
+    }
+
+    return 0;
 }
 
 void Setting::resetToDefault() {

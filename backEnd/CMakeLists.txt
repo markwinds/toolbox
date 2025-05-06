@@ -4,6 +4,9 @@ project(toolbox)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# 禁用安全函数相关警告
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
 # 使用外部传入的版本信息
 if (DEFINED TOOLBOX_VERSION)
     # 将宏传递给编译器

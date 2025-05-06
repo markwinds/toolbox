@@ -2,6 +2,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <ctime>
+#include <sstream>
 #include <string>
 #include <thread>
 
@@ -53,12 +54,14 @@ void log(
     localtime_s(&tm_info, &now);
 
     // 获取线程ID
-    std::thread::id tid = std::this_thread::get_id();
+    std::thread::id    tid = std::this_thread::get_id();
+    std::ostringstream oss;
+    oss << tid;
 
     // 格式化输出
     write_len += snprintf(tmp + write_len,
                           sizeof(tmp) - write_len,
-                          "[%c][%04d-%02d-%02d %02d:%02d:%02d][%s:%s:%d][tid:%x] ",
+                          "[%c][%04d-%02d-%02d %02d:%02d:%02d][%s:%s:%d][tid:%s] ",
                           log_level_str[level],
                           tm_info.tm_year + 1900,
                           tm_info.tm_mon + 1,
@@ -69,7 +72,7 @@ void log(
                           file_name.c_str(),
                           func,
                           line,
-                          tid);
+                          oss.str().c_str());
 
     write_len += vsnprintf(tmp + write_len, sizeof(tmp) - write_len, format, args);
     va_end(args);

@@ -56,6 +56,14 @@ class Setting {
     // 重启程序
     static void restart();
 
+    /**
+     * @brief Compare two version strings.
+     * @param version1 The first version string.
+     * @param version2 The second version string.
+     * @return 1 if version1 > version2, 0 if equal, -1 if version1 < version2.
+     */
+    static int compareVersions(const std::string& version1, const std::string& version2);
+
   private:
     static std::string       getCompileTime();
     static Config            config_;
