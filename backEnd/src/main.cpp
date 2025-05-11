@@ -1,6 +1,7 @@
 #include "httpServer.h"
 #include "log.h"
 #include "setting.h"
+#include "util.h"
 #include <drogon/drogon.h>
 #include <map>
 #include <string>
@@ -105,8 +106,16 @@ void doMain() {
 // Windows GUI程序入口
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow) {
     // 为程序添加托盘图标
-    getTrayInstance().addTray(hInstance, L"toolbox");
-    getTrayInstance().regMenu(L"good", []() { logI("good"); });
+    getTrayInstance().addTray(hInstance,
+                              L"toolbox " + string_to_wstring(Setting::getVersionInfo()));
+    getTrayInstance().regMenu(L"主页", []() {
+        logI("tray open home page");
+        openBrowser("http://127.0.0.1:" + std::to_string(Setting::getConfig().port));
+    });
+    getTrayInstance().regMenu(L"重启", []() {
+        logI("tray restart");
+        restartProgram();
+    });
     getTrayInstance().regMenu(L"退出", []() {
         logW("tray exit program");
         exit(0);

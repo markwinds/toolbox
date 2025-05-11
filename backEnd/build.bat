@@ -329,10 +329,3 @@ if exist %LIB_PATH%\libcurl.lib (
     cd %WORK_PATH%
 )
 goto :eof
-
-
-
-
-
-
-

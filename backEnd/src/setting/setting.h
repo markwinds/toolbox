@@ -9,7 +9,7 @@ struct Config {
     std::string  dataDir      = "./data"; // 数据目录
     bool         remoteAccess = false;    // 是否允许远程访问
     unsigned int port         = 80;       // 监听端口
-    std::string  proxyUrl     = "";       // 代理地址
+    std::string  proxyUrl;                // 代理地址
 
     // 将配置转换为JSON
     void toJson(nlohmann::json& j) const {
@@ -53,9 +53,6 @@ class Setting {
     // 重置为默认配置
     static void resetToDefault();
 
-    // 重启程序
-    static void restart();
-
     /**
      * @brief Compare two version strings.
      * @param version1 The first version string.
@@ -63,6 +60,13 @@ class Setting {
      * @return 1 if version1 > version2, 0 if equal, -1 if version1 < version2.
      */
     static int compareVersions(const std::string& version1, const std::string& version2);
+
+    static std::string getVersionInfo();
+
+  private:
+    // 替换老程序
+    static int  updateProgramFile();
+    static bool renameExecutable(const std::wstring& oldPath, const std::wstring& newName);
 
   private:
     static std::string       getCompileTime();

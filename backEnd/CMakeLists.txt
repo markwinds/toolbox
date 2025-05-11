@@ -46,6 +46,7 @@ include_directories(src/log)
 include_directories(src/staticFile)
 include_directories(src/httpServer)
 include_directories(src/setting)
+include_directories(src/util)
 
 # ------------------------源代码------------------------
 if (WIN32)
@@ -58,6 +59,7 @@ aux_source_directory(src/log SRC_LIST)
 aux_source_directory(src/staticFile SRC_LIST)
 aux_source_directory(src/httpServer SRC_LIST)
 aux_source_directory(src/setting SRC_LIST)
+aux_source_directory(src/util SRC_LIST)
 
 # ------------------------生成程序------------------------
 if (WIN32)

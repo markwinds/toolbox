@@ -1,5 +1,6 @@
 #include "setting.h"
 #include "httpServer.h"
+#include "util.h"
 #include <curl.h>
 #include <filesystem>
 #include <fstream>
@@ -13,31 +14,30 @@
 #define GITHUB_OWNER "markwinds"
 #define GITHUB_REPO "toolbox"
 
+#define DOWNLOAD_PROGRAM_FILENAME "toolbox.zip"
+#define L_DOWNLOAD_PROGRAM_FILENAME L"toolbox.zip"
+
+#define OLD_PROGRAM_FILENAME ".toolbox.exe"
+#define L_OLD_PROGRAM_FILENAME L".toolbox.exe"
+
 using namespace std;
 namespace fs = std::filesystem;
-
-#define HTTP_HEADER_BROWSER_STR \
-    R"(Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36)"
 
 // 静态成员变量初始化
 Config            Setting::config_;
 const std::string Setting::configFilePath_ = "./config.json";
 
-// 用于存储 curl 响应数据的回调函数
-size_t writeCallback(void* contents, size_t size, size_t nmemb, string* userp) {
-    userp->append((char*)contents, size * nmemb);
-    return size * nmemb;
-}
-size_t hello(void* contents, size_t size, size_t nmemb, FILE* userp) {
-    fwrite(contents, size, nmemb, userp);
-    logI("write file");
-    return size * nmemb;
-}
-
 int Setting::init() {
     // 注册处理
     regHttpHandler();
+
+    // 删除可能存在的老文件
+    remove(OLD_PROGRAM_FILENAME);
     return 0;
+}
+
+std::string Setting::getVersionInfo() {
+    return string(TOOLBOX_VERSION) + " build_" + getCompileTime();
 }
 
 int Setting::regHttpHandler() {
@@ -45,7 +45,7 @@ int Setting::regHttpHandler() {
         BASE_URL + "/version",
         [&](const drogon::HttpRequestPtr&                         req,
             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-            OK_RESP_STR(string(TOOLBOX_VERSION) + " build_" + getCompileTime());
+            OK_RESP_STR(getVersionInfo());
         },
         {drogon::Get});
 
@@ -113,7 +113,7 @@ int Setting::regHttpHandler() {
                 // 休眠 1 秒，等待请求处理完成
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 // 重启程序
-                restart();
+                restartProgram();
             }).detach();
             OK_RESP();
         },
@@ -153,16 +153,9 @@ int Setting::regHttpHandler() {
                 goto exit;
             }
 
+            configCurl(curl);
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            if (!config_.proxyUrl.empty()) {
-                logD("user proxy: %s", config_.proxyUrl.c_str());
-                curl_easy_setopt(curl, CURLOPT_PROXY, config_.proxyUrl.c_str());
-            }
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // 跳过 SSL 验证
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-            curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_HEADER_BROWSER_STR);
 
             res = curl_easy_perform(curl);
             if (res != CURLE_OK) {
@@ -173,7 +166,7 @@ int Setting::regHttpHandler() {
             curl_easy_cleanup(curl);
             curl = nullptr;
 
-            logD("resp:\n%s", response.c_str());
+            //            logD("resp:\n%s", response.c_str());
             PARSE_JSON(latestRespJson, response);
             latestVersionStr = latestRespJson["name"];
             OK_RESP_STR(latestVersionStr);
@@ -200,7 +193,7 @@ int Setting::regHttpHandler() {
             CURLcode res;
             json     latestRespJson;
             string   latestVersionStr;
-            string   tmpDownloadFilename = "toolbox.zip";
+            string   tmpDownloadFilename = DOWNLOAD_PROGRAM_FILENAME;
             FILE*    fd                  = nullptr;
 
             CURL* curl = curl_easy_init();
@@ -209,16 +202,9 @@ int Setting::regHttpHandler() {
                 goto exit;
             }
 
+            configCurl(curl);
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            if (!config_.proxyUrl.empty()) {
-                logD("user proxy: %s", config_.proxyUrl.c_str());
-                curl_easy_setopt(curl, CURLOPT_PROXY, config_.proxyUrl.c_str());
-            }
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // 跳过 SSL 验证
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-            curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_HEADER_BROWSER_STR);
 
             res = curl_easy_perform(curl);
             if (res != CURLE_OK) {
@@ -237,18 +223,11 @@ int Setting::regHttpHandler() {
                 goto exit;
             }
             downloadUrl += latestVersionStr;
-            downloadUrl += "/toolbox.zip";
+            downloadUrl += "/";
+            downloadUrl += tmpDownloadFilename;
             logI("download from url:%s", downloadUrl.c_str());
 
-            curl_easy_reset(curl);
             curl_easy_setopt(curl, CURLOPT_URL, downloadUrl.c_str());
-            if (!config_.proxyUrl.empty()) {
-                logD("user proxy: %s", config_.proxyUrl.c_str());
-                curl_easy_setopt(curl, CURLOPT_PROXY, config_.proxyUrl.c_str());
-            }
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L); // 跳过 SSL 验证
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-            curl_easy_setopt(curl, CURLOPT_USERAGENT, HTTP_HEADER_BROWSER_STR);
 
             remove(tmpDownloadFilename.c_str());
             fd = fopen(tmpDownloadFilename.c_str(), "ab");
@@ -257,12 +236,10 @@ int Setting::regHttpHandler() {
                 logE("%s", errMsg.c_str());
                 goto exit;
             }
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &fd);
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlRespFile);
 
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, fd);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, hello);
-            logD("start do curl");
             res = curl_easy_perform(curl);
-            logD("end do curl");
             if (res != CURLE_OK) {
                 errMsg = curl_easy_strerror(res);
                 logE("curl_easy_perform() failed: %s", errMsg.c_str());
@@ -272,6 +249,18 @@ int Setting::regHttpHandler() {
             curl_easy_cleanup(curl);
             curl = nullptr;
             fclose(fd);
+            fd = nullptr;
+
+            // 解压替换程序
+            if (updateProgramFile() != 0) {
+                errMsg = "update program file failed";
+                logE("%s", errMsg.c_str());
+                goto exit;
+            }
+            remove(DOWNLOAD_PROGRAM_FILENAME);
+
+            restartProgram();
+
             OK_RESP();
             return;
 
@@ -438,19 +427,41 @@ void Setting::resetToDefault() {
     logW("reset config ok");
 }
 
-void Setting::restart() {
-    logW("restart server");
+bool Setting::renameExecutable(const std::wstring& oldPath, const std::wstring& newName) {
+    // 使用 std::filesystem 解析路径
+    fs::path exePath(oldPath);
+    fs::path parentDir = exePath.parent_path();
+    fs::path newPath   = parentDir / newName;
 
-#ifdef WIN32
-    // 获取当前程序的路径
-    char szFilePath[MAX_PATH];
-    GetModuleFileName(nullptr, szFilePath, MAX_PATH);
+    try {
+        // 尝试重命名文件
+        fs::rename(oldPath, newPath);
+        logW("Successfully renamed %ls to %ls", oldPath.c_str(), newPath.c_str());
+        return true;
+    } catch (const fs::filesystem_error& e) {
+        logE("rename %ls to %ls failed", oldPath.c_str(), newPath.c_str());
+        return false;
+    }
+}
 
-    // 启动新进程
-    WinExec(szFilePath, SW_SHOWNORMAL);
-    // 终止当前进程
-    ExitProcess(0);
-#else
+int Setting::updateProgramFile() {
+    // 修改当前程序文件名
+    auto filePath = getExecutablePath();
 
-#endif
+    if (filePath.empty()) {
+        logE("get executable path failed");
+        return -1;
+    }
+    if (!renameExecutable(filePath, L_OLD_PROGRAM_FILENAME)) {
+        logE("rename file failed");
+        return -1;
+    }
+
+    // 解压zip包
+    if (decompressZipData(L_DOWNLOAD_PROGRAM_FILENAME) != 0) {
+        logE("decompress zip file failed");
+        return -1;
+    }
+
+    return 0;
 }

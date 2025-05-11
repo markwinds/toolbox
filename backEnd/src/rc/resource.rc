@@ -1,5 +1,6 @@
 
 #include "rc.h"
 
-IDI_ICON1 ICON "../../../web/public/favicon.ico"
-IDR_FILE1 RCDATA "../../../web/dist.zip"
+IDI_ICON1 ICON "../../../web/public/favicon.ico" 
+IDR_FILE1 RCDATA "../../../web/dist.zip" 
+IDR_FILE2 RCDATA "cacert.zip"
