@@ -23,8 +23,8 @@ LRESULT CALLBACK Tray::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
             HMENU hMenu = CreatePopupMenu();
 
             int count = 0;
-            for (auto& item : getTrayInstance().menuMap) {
-                AppendMenuW(hMenu, MF_STRING, ++count, item.first.c_str());
+            for (auto& item : getTrayInstance().menuList) {
+                AppendMenuW(hMenu, MF_STRING, ++count, item.title.c_str());
             }
 
             // 显示菜单
@@ -37,10 +37,10 @@ LRESULT CALLBACK Tray::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     case WM_COMMAND:
 
         wmId = LOWORD(wParam);
-        if (wmId > 0 && wmId <= getTrayInstance().menuMap.size()) {
-            auto it = getTrayInstance().menuMap.begin();
+        if (wmId > 0 && wmId <= getTrayInstance().menuList.size()) {
+            auto it = getTrayInstance().menuList.begin();
             std::advance(it, wmId - 1);
-            it->second();
+            it->handler();
         }
 
         break;
@@ -108,7 +108,7 @@ int Tray::addTray(HINSTANCE const& hInstance, const std::wstring& title) {
 }
 
 int Tray::regMenu(const std::wstring& menu_name, MenuHandler handler) {
-    menuMap[menu_name] = handler;
+    menuList.emplace_back(TrayInfo{.title = menu_name, .handler = handler});
     return 0;
 }
 
