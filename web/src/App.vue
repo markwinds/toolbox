@@ -29,13 +29,14 @@
 import {useRouter} from 'vue-router'
 import {darkTheme, NIcon, zhCN} from "naive-ui"
 import {h} from "vue"
-import {SettingsOutline} from '@vicons/ionicons5'
+import {SettingsOutline, CodeOutline} from '@vicons/ionicons5'
 
 
 const router = useRouter()
 
 const menuOptions = [
   {label: '设置', key: 'settings', icon: renderIcon(SettingsOutline)},
+  {label: '文本格式化', key: 'text-formatter', icon: renderIcon(CodeOutline)},
 ]
 
 function renderIcon(icon) {
@@ -62,6 +63,7 @@ html, body, #app {
 
 .content {
   height: 100%;
+  background-color: #f0f2f5; /* 添加浅灰色背景 */
 }
 
 </style>
