@@ -29,7 +29,12 @@
 import {useRouter} from 'vue-router'
 import {darkTheme, NIcon, zhCN} from "naive-ui"
 import {h} from "vue"
-import {SettingsOutline, CodeOutline} from '@vicons/ionicons5'
+import {
+  SettingsOutline,
+  CodeOutline,
+  SwapHorizontalOutline,
+  TimeOutline
+} from '@vicons/ionicons5'
 
 
 const router = useRouter()
@@ -37,6 +42,8 @@ const router = useRouter()
 const menuOptions = [
   {label: '设置', key: 'settings', icon: renderIcon(SettingsOutline)},
   {label: '文本格式化', key: 'text-formatter', icon: renderIcon(CodeOutline)},
+  {label: '进制转换', key: 'base-converter', icon: renderIcon(SwapHorizontalOutline)},
+  {label: '时间转换', key: 'time-converter', icon: renderIcon(TimeOutline)},
 ]
 
 function renderIcon(icon) {

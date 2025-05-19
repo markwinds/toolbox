@@ -165,7 +165,6 @@ if exist %LIB_PATH%\zip.lib (
 )
 goto :eof
 
-:: 拷贝json头文件
 :copy_json
 :: 查看inc中是否存在json头文件 如果不存在则拷贝
 if exist %INC_PATH%\json\json.hpp (
